@@ -3,7 +3,7 @@ import { serviceURL } from "../../serviceURL";
 import axios from "axios";
 import { Row, Col } from "reactstrap";
 
-const CheckLowReversal = () => {
+const CheckHighReversal = () => {
   const [resultState, setResultState] = useState([]);
   const [finalResult, setFinalResult] = useState("");
   const [showDate, setShowDate] = useState("");
@@ -18,7 +18,7 @@ const CheckLowReversal = () => {
     axios
       .get(
         serviceURL +
-          "/testCheckLowReversal/" +
+          "/testCheckHighReversal/" +
           symbol +
           "/" +
           fromDate +
@@ -52,7 +52,7 @@ const CheckLowReversal = () => {
       " : " +
       tDateMin;
     setShowDate(dateValue);
-    axios.post(serviceURL + "/checkLowReversal", result).then((response) => {
+    axios.post(serviceURL + "/checkHighReversal", result).then((response) => {
       setFinalResult("");
       // console.log('*******************88');
       if (response) {
@@ -132,4 +132,4 @@ const CheckLowReversal = () => {
   );
 };
 
-export default CheckLowReversal;
+export default CheckHighReversal;

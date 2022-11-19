@@ -11,6 +11,8 @@ import {
   Route,
   NavLink,
 } from "react-router-dom";
+import CheckHighReversal from "./component/checkHighReversal/CheckHighReversal";
+import SpreadStock from "./component/spreadStock/SpreadStock";
 
 function App() {
   return (
@@ -23,10 +25,22 @@ function App() {
           <div className="px-4">
             <NavLink to="/checkLowReversal">CheckLowReversal</NavLink>
           </div>
+          <div className="px-4">
+            <NavLink to="/checkHighReversal">CheckHighReversal</NavLink>
+          </div>
+          <div className="px-4">
+            <NavLink to="/spreadStock">Spread Stock</NavLink>
+          </div>
         </div>
         <Switch>
           <Route exact path="/" component={Home} />
           <Route exact path="/checkLowReversal" component={CheckLowReversal} />
+          <Route
+            exact
+            path="/checkHighReversal"
+            component={CheckHighReversal}
+          />
+          <Route exact path="/spreadStock" component={SpreadStock} />
         </Switch>
       </div>
     </Router>
