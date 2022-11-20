@@ -251,6 +251,7 @@ export const dateList = [
 export const stopLossData = [
   { label: 0, value: 0 },
   { label: 0.15, value: 0.15 },
+  { label: 0.2, value: 0.2 },
   { label: 0.3, value: 0.3 },
   { label: 0.5, value: 0.5 },
   { label: 0.6, value: 0.6 },
