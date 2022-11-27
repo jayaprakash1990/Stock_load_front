@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import Home from "./component/home/Home";
 import CheckLowReversal from "./component/checkLowReversal/CheckLowReversal";
+import Miscellaneous from "./component/miscellaneous/Miscellaneous";
 
 import "bootstrap";
 
@@ -23,6 +24,9 @@ function App() {
             <NavLink to="/">Home</NavLink>
           </div>
           <div className="px-4">
+            <NavLink to="/miscellaneous">Token/Miscellaneous</NavLink>
+          </div>
+          <div className="px-4">
             <NavLink to="/checkLowReversal">CheckLowReversal</NavLink>
           </div>
           <div className="px-4">
@@ -40,6 +44,7 @@ function App() {
             path="/checkHighReversal"
             component={CheckHighReversal}
           />
+          <Route exact path="/miscellaneous" component={Miscellaneous} />
           <Route exact path="/spreadStock" component={SpreadStock} />
         </Switch>
       </div>

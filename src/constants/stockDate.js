@@ -250,6 +250,7 @@ export const dateList = [
 
 export const stopLossData = [
   { label: 0, value: 0 },
+  { label: 0.1, value: 0.1 },
   { label: 0.15, value: 0.15 },
   { label: 0.2, value: 0.2 },
   { label: 0.3, value: 0.3 },
@@ -264,13 +265,19 @@ export const candleTimeData = [
   { label: 15, value: 15 },
 ];
 
-export const stockDataSymbol = [
-  "TATAMOTORS",
-  "RELIANCE",
-  "SBIN",
-  "HDFCBANK",
-  "M&M",
-  "TCS",
-  "ADANIPORTS",
-  "SUNPHARMA",
-];
+// export const stockDataSymbol = [
+//   "TATAMOTORS",
+//   "RELIANCE",
+//   "SBIN",
+//   "HDFCBANK",
+//   "M&M",
+//   "TCS",
+//   "ADANIPORTS",
+//   "SUNPHARMA",
+//   "CIPLA",
+//   "GRASIM",
+//   "ICICIBANK",
+//   "TATASTEEL",
+// ];
+
+export const stockDataSymbol = ["TATAMOTORS", "RELIANCE", "SBIN", "TCS"];

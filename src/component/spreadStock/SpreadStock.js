@@ -13,8 +13,8 @@ import axios from "axios";
 const SpreadStock = () => {
   const [selectDate, setSelectDate] = useState(null);
   const [completeData, setCompleteData] = useState({});
-  const [stopLoss, setStopLoss] = useState({ label: 0.15, value: 0.15 });
-  const [candleTime, setCandleTime] = useState({ label: 5, value: 5 });
+  const [stopLoss, setStopLoss] = useState({ label: 0.07, value: 0.07 });
+  const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
   const [referenceCandle, setReferenceCandle] = useState({});
   const [resultSet, setResultSet] = useState([]);
   const [finalResult, setFinalResultSet] = useState([]);
@@ -23,7 +23,7 @@ const SpreadStock = () => {
   const [dayEndValue, setDayEndValue] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const captialAmount = 25000;
+  const captialAmount = 50000;
   const brokerage = 0.12;
   const breathingValue = 0.1;
 
@@ -35,8 +35,8 @@ const SpreadStock = () => {
   // }, [referenceCandle, stopLoss, candleTime]);
 
   // useEffect(() => {
-  //   console.log(selectDate);
-  // }, [selectDate]);
+  //   console.log(finalResult);
+  // }, [finalResult]);
 
   useEffect(() => {
     if (finalResult && finalResult.length > 0) {
@@ -356,8 +356,10 @@ const SpreadStock = () => {
     setResultSet(tmpArr);
   };
 
-  const calculateValue = () => {
+  const calculateValue = (e) => {
+    e.preventDefault();
     // alert("triggered");
+
     setLoading(true);
     let finalArr = [];
 
@@ -425,113 +427,131 @@ const SpreadStock = () => {
 
   return (
     <React.Fragment>
-      <Row></Row>
-      <Row className="mt-3 pt-3">
-        <Col md={1}></Col>
-        <Col md={3}>
-          <Select
-            value={selectDate}
-            defaultValue={selectDate}
-            onChange={setSelectDate}
-            placeholder={"select Date"}
-            options={dateList}
-          />
-        </Col>
-        <Col md={1}></Col>
-        <Col md={3}>
-          <Select
-            defaultValue={stopLoss}
-            onChange={setStopLoss}
-            placeholder={"select Stoploss"}
-            options={stopLossData}
-          />
-        </Col>
-        <Col md={1}></Col>
-        <Col md={3}>
-          <Select
-            defaultValue={candleTime}
-            onChange={setCandleTime}
-            placeholder={"select Candle Time"}
-            options={candleTimeData}
-          />
-        </Col>
-      </Row>
-      <br />
-      <br />
-      <Row className="mt-3 pt-3 pl-1 ml-1">
-        <Col md={12} align={"center"}>
-          {minValue},{maxValue},{dayEndValue};
-        </Col>
-      </Row>
-      <br />
-      <Row className="mt-3 pt-3 pl-1 ml-1">
-        <Col md={3}>Minimum Value : {minValue}</Col>
-        <Col md={3}>Maximum Value : {maxValue}</Col>
-        <Col md={3}>Day End Value : {dayEndValue}</Col>
-      </Row>
-      <br />
-
-      <Row>
-        <Col md={12} className="mt-3 pt-3" align={"center"}>
-          {!loading && <button onClick={calculateValue}>Calculate</button>}
-        </Col>
-      </Row>
-      <br />
-      <br />
-
-      <Row className="ml-1">
-        <Col md={1}>
-          <b>Date</b>
-        </Col>
-        <Col md={1}>
-          <b>TATAMOTORS</b>
-        </Col>
-        <Col md={1}>
-          <b>RELIANCE</b>
-        </Col>
-        <Col md={1}>
-          <b>SBIN</b>
-        </Col>
-        <Col md={1}>
-          <b>HDFCBANK</b>
-        </Col>
-
-        <Col md={1}>
-          <b>M&M</b>
-        </Col>
-        <Col md={1}>
-          <b>TCS</b>
-        </Col>
-        <Col md={1}>
-          <b>ADANIPORTS</b>
-        </Col>
-        <Col md={1}>
-          <b>SUNPHARMA</b>
-        </Col>
-        <Col md={1}>
-          <b>Gross Total</b>
-        </Col>
-        <Col md={1}>
-          <b>Net Total</b>
-        </Col>
-      </Row>
-      {finalResult.map((result, index) => (
-        <Row className="ml-1" key={index}>
-          <Col md={1}>{result.stockDate}</Col>
-          <Col md={1}>{result["TATAMOTORS"]}</Col>
-          <Col md={1}>{result["RELIANCE"]}</Col>
-          <Col md={1}>{result["SBIN"]}</Col>
-          <Col md={1}>{result["HDFCBANK"]}</Col>
-          <Col md={1}>{result["M&M"]}</Col>
-          <Col md={1}>{result["TCS"]}</Col>
-          <Col md={1}>{result["ADANIPORTS"]}</Col>
-          <Col md={1}>{result["SUNPHARMA"]}</Col>
-          <Col md={1}>
-            {Number(parseFloat(result["total"].toString()).toFixed(2))}
+      <form onSubmit={calculateValue}>
+        <Row></Row>
+        <Row className="mt-3 pt-3">
+          <Col md={1}></Col>
+          <Col md={3}>
+            <Select
+              value={selectDate}
+              defaultValue={selectDate}
+              onChange={setSelectDate}
+              placeholder={"select Date"}
+              options={dateList}
+            />
           </Col>
-          <Col md={1}>{totValueCaluculation(result["total"])}</Col>
+          <Col md={1}></Col>
+          <Col md={3}>
+            <Select
+              defaultValue={stopLoss}
+              onChange={setStopLoss}
+              placeholder={"select Stoploss"}
+              options={stopLossData}
+            />
+          </Col>
+          <Col md={1}></Col>
+          <Col md={3}>
+            <Select
+              defaultValue={candleTime}
+              onChange={setCandleTime}
+              placeholder={"select Candle Time"}
+              options={candleTimeData}
+            />
+          </Col>
         </Row>
-      ))}
+        <br />
+        <br />
+        <Row className="mt-3 pt-3 pl-1 ml-1">
+          <Col md={12} align={"center"}>
+            {minValue},{maxValue},{dayEndValue};
+          </Col>
+        </Row>
+        <br />
+        <Row className="mt-3 pt-3 pl-1 ml-1">
+          <Col md={3}>Minimum Value : {minValue}</Col>
+          <Col md={3}>Maximum Value : {maxValue}</Col>
+          <Col md={3}>Day End Value : {dayEndValue}</Col>
+        </Row>
+        <br />
+
+        <Row>
+          <Col md={12} className="mt-3 pt-3" align={"center"}>
+            {!loading && <button type="submit">Calculate</button>}
+          </Col>
+        </Row>
+        <br />
+        <br />
+
+        <Row className="ml-1">
+          <Col md={1}>
+            <b>Date</b>
+          </Col>
+          <Col md={1}>
+            <b>TATAMOTORS</b>
+          </Col>
+          <Col md={1}>
+            <b>RELIANCE</b>
+          </Col>
+          <Col md={1}>
+            <b>SBIN</b>
+          </Col>
+          {/* <Col md={1}>
+            <b>HDFCBANK</b>
+          </Col>
+
+          <Col md={1}>
+            <b>M&M</b>
+          </Col> */}
+          <Col md={1}>
+            <b>TCS</b>
+          </Col>
+          {/* <Col md={1}>
+            <b>ADANIPORTS</b>
+          </Col>
+          <Col md={1}>
+            <b>SUNPHARMA</b>
+          </Col> */}
+          {/* <Col md={1}>
+            <b>CIPLA</b>
+          </Col> */}
+          {/* <Col md={1}>
+            <b>GRASIM</b>
+          </Col>
+          <Col md={1}>
+            <b>ICICIBANK</b>
+          </Col>
+          <Col md={1}>
+            <b>TATASTEEL</b>
+          </Col>*/}
+          <Col md={1}>
+            <b>Gross Total</b>
+          </Col>
+          <Col md={1}>
+            <b>Net Total</b>
+          </Col>
+        </Row>
+        {finalResult.map((result, index) => (
+          <Row className="ml-1" key={index}>
+            <Col md={1}>{result.stockDate}</Col>
+            <Col md={1}>{result["TATAMOTORS"]}</Col>
+            <Col md={1}>{result["RELIANCE"]}</Col>
+            <Col md={1}>{result["SBIN"]}</Col>
+            {/* <Col md={1}>{result["HDFCBANK"]}</Col> */}
+            {/* <Col md={1}>{result["M&M"]}</Col> */}
+            <Col md={1}>{result["TCS"]}</Col>
+            {/* <Col md={1}>{result["ADANIPORTS"]}</Col> */}
+            {/* <Col md={1}>{result["SUNPHARMA"]}</Col> */}
+            {/* <Col md={1}>{result["CIPLA"]}</Col>
+            <Col md={1}>{result["GRASIM"]}</Col>
+            <Col md={1}>{result["ICICIBANK"]}</Col>
+            <Col md={1}>{result["TATASTEEL"]}</Col> */}
+            <Col md={1}>
+              {Number(parseFloat(result["total"].toString()).toFixed(2))}
+            </Col>
+            <Col md={1}>{totValueCaluculation(result["total"])}</Col>
+          </Row>
+        ))}
+      </form>
     </React.Fragment>
   );
 };
