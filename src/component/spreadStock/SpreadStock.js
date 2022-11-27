@@ -13,7 +13,7 @@ import axios from "axios";
 const SpreadStock = () => {
   const [selectDate, setSelectDate] = useState(null);
   const [completeData, setCompleteData] = useState({});
-  const [stopLoss, setStopLoss] = useState({ label: 0.07, value: 0.07 });
+  const [stopLoss, setStopLoss] = useState({ label: 0.05, value: 0.05 });
   const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
   const [referenceCandle, setReferenceCandle] = useState({});
   const [resultSet, setResultSet] = useState([]);

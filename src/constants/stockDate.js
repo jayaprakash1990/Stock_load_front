@@ -250,6 +250,7 @@ export const dateList = [
 
 export const stopLossData = [
   { label: 0, value: 0 },
+  { label: 0.05, value: 0.05 },
   { label: 0.1, value: 0.1 },
   { label: 0.15, value: 0.15 },
   { label: 0.2, value: 0.2 },
@@ -281,3 +282,10 @@ export const candleTimeData = [
 // ];
 
 export const stockDataSymbol = ["TATAMOTORS", "RELIANCE", "SBIN", "TCS"];
+
+export const instrumentSymbol = [
+  { label: "TATAMOTORS", value: 884737 },
+  { label: "SBIN", value: 779521 },
+  { label: "TCS", value: 2953217 },
+  { label: "RELIANCE", value: 738561 },
+];

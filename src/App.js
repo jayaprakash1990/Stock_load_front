@@ -3,6 +3,7 @@ import "./App.css";
 import Home from "./component/home/Home";
 import CheckLowReversal from "./component/checkLowReversal/CheckLowReversal";
 import Miscellaneous from "./component/miscellaneous/Miscellaneous";
+import CheckOiVolume from "./component/checkOiVolume/CheckOiVolume";
 
 import "bootstrap";
 
@@ -35,6 +36,9 @@ function App() {
           <div className="px-4">
             <NavLink to="/spreadStock">Spread Stock</NavLink>
           </div>
+          <div className="px-4">
+            <NavLink to="/checkOiVolume">Check Oi Volume</NavLink>
+          </div>
         </div>
         <Switch>
           <Route exact path="/" component={Home} />
@@ -46,6 +50,7 @@ function App() {
           />
           <Route exact path="/miscellaneous" component={Miscellaneous} />
           <Route exact path="/spreadStock" component={SpreadStock} />
+          <Route exact path="/checkOiVolume" component={CheckOiVolume} />
         </Switch>
       </div>
     </Router>
