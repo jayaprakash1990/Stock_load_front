@@ -246,6 +246,8 @@ export const dateList = [
   { label: 202210200915, value: 202210200915 },
   { label: 202210210915, value: 202210210915 },
   { label: 202210240915, value: 202210240915 },
+  { label: 202211290915, value: 202211290915 },
+  { label: 202211300915, value: 202211300915 },
 ];
 
 export const stopLossData = [
@@ -279,6 +281,17 @@ export const candleTimeData = [
 //   "GRASIM",
 //   "ICICIBANK",
 //   "TATASTEEL",
+// ];
+
+// export const stockDataSymbol = [
+//   "TATAMOTORS",
+//   "RELIANCE",
+//   "SBIN",
+//   "TCS",
+//   "SUNPHARMA",
+//   "M&M",
+//   "TATASTEEL",
+//   "ADANIPORTS",
 // ];
 
 export const stockDataSymbol = ["TATAMOTORS", "RELIANCE", "SBIN", "TCS"];

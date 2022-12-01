@@ -118,8 +118,8 @@ const SpreadStock = () => {
       let average = (tmpJson[stock].high + tmpJson[stock].low) / 2;
       let reference =
         fullData[startDateValue + 1][stock].stockOpen > average
-          ? "long"
-          : "short";
+          ? "short"
+          : "long";
       finalJson[stock] = {
         reference,
         value: fullData[startDateValue + 1][stock].stockOpen,
@@ -511,18 +511,18 @@ const SpreadStock = () => {
             <b>HDFCBANK</b>
           </Col> */}
 
-          {/* <Col md={1}>
+          <Col md={1}>
             <b>M&M</b>
-          </Col> */}
+          </Col>
           <Col md={1}>
             <b>TCS</b>
           </Col>
-          {/* <Col md={1}>
+          <Col md={1}>
             <b>ADANIPORTS</b>
-          </Col> */}
-          {/* <Col md={1}>
+          </Col>
+          <Col md={1}>
             <b>SUNPHARMA</b>
-          </Col> */}
+          </Col>
           {/* <Col md={1}>
             <b>CIPLA</b>
           </Col> */}
@@ -532,9 +532,9 @@ const SpreadStock = () => {
           {/* <Col md={1}>
             <b>ICICIBANK</b>
           </Col> */}
-          {/* <Col md={1}>
+          <Col md={1}>
             <b>TATASTEEL</b>
-          </Col> */}
+          </Col>
           <Col md={1}>
             <b>Gross Total</b>
           </Col>
