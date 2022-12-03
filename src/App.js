@@ -17,6 +17,7 @@ import CheckHighReversal from "./component/checkHighReversal/CheckHighReversal";
 import SpreadStock from "./component/spreadStock/SpreadStock";
 import SpreadStockReverse from "./component/spreadStock/SpreadStockReverse";
 import OptionSpreadLong from "./component/optionSpread/OptionSpreadLong";
+import OptionSpreadShort from "./component/optionSpread/OptionSpreadShort";
 
 function App() {
   return (
@@ -29,23 +30,26 @@ function App() {
           <div className="px-4">
             <NavLink to="/miscellaneous">Token/Miscellaneous</NavLink>
           </div>
-          <div className="px-4">
+          {/* <div className="px-4">
             <NavLink to="/checkLowReversal">CheckLowReversal</NavLink>
-          </div>
-          <div className="px-4">
+          </div> */}
+          {/* <div className="px-4">
             <NavLink to="/checkHighReversal">CheckHighReversal</NavLink>
-          </div>
-          <div className="px-4">
+          </div> */}
+          {/* <div className="px-4">
             <NavLink to="/spreadStock">Spread Stock</NavLink>
-          </div>
+          </div> */}
           <div className="px-4">
             <NavLink to="/checkOiVolume">Check Oi Volume</NavLink>
           </div>
-          <div className="px-4">
+          {/* <div className="px-4">
             <NavLink to="/spreadStockReverse">Spread Stock Reverse</NavLink>
-          </div>
-          <div className="px-4">
+          </div> */}
+          {/* <div className="px-4">
             <NavLink to="/optionSpreadLong">Spread Option Long</NavLink>
+          </div> */}
+          <div className="px-4">
+            <NavLink to="/optionSpreadShort">Spread Option Short</NavLink>
           </div>
         </div>
         <Switch>
@@ -65,6 +69,11 @@ function App() {
           />
           <Route exact path="/checkOiVolume" component={CheckOiVolume} />
           <Route exact path="/optionSpreadLong" component={OptionSpreadLong} />
+          <Route
+            exact
+            path="/optionSpreadShort"
+            component={OptionSpreadShort}
+          />
         </Switch>
       </div>
     </Router>

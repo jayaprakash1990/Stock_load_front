@@ -6,14 +6,14 @@ import { serviceURL } from "../../serviceURL";
 import axios from "axios";
 import { candleTimeData } from "../../constants/stockDate";
 
-const OptionSpreadLong = () => {
+const OptionSpreadShort = () => {
   const [selectDate, setSelectDate] = useState(null);
   const [finalResult, setFinalResult] = useState([]);
   const [jsonResult, setJsonResult] = useState({});
   const [completeData, setCompleteData] = useState([]);
   const [ceValue, setCeValue] = useState(null);
   const [peValue, setPeValue] = useState(null);
-  const [stopLoss, setStopLoss] = useState(-150);
+  const [stopLoss, setStopLoss] = useState(-1500);
   const [niftyValue, setNiftyValue] = useState({});
   const [candleTime, setCandleTime] = useState({ label: 15, value: 15 });
   const [reference, setReference] = useState(0);
@@ -105,8 +105,8 @@ const OptionSpreadLong = () => {
     let tempReferenceValue = ceStockClose * 50 + peStockClose * 50;
 
     let bufferTempReferenceValue =
-      (ceStockClose + (ceStockClose * bufferValue) / 100) * 50 +
-      (peStockClose + (peStockClose * bufferValue) / 100) * 50;
+      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50 +
+      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
 
     console.log("originalReferenceValue ", tempReferenceValue);
     setReference(bufferTempReferenceValue);
@@ -114,9 +114,9 @@ const OptionSpreadLong = () => {
     for (let i = 0; i < completeData.length; i++) {
       if (i >= candleTime.value) {
         let totalCalculateValue =
-          completeData[i][ceValue.value].stockClose * 50 +
-          completeData[i][peValue.value].stockClose * 50 -
-          bufferTempReferenceValue;
+          bufferTempReferenceValue -
+          (completeData[i][ceValue.value].stockClose * 50 +
+            completeData[i][peValue.value].stockClose * 50);
         if (totalCalculateValue < stopLoss) {
           slTrigger = true;
         }
@@ -274,4 +274,4 @@ const OptionSpreadLong = () => {
   );
 };
 
-export default OptionSpreadLong;
+export default OptionSpreadShort;

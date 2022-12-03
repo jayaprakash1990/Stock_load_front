@@ -479,7 +479,7 @@ export const optionsDate = [
   { label: 20221019, value: 20221019 },
   { label: 20221020, value: 20221020 },
   { label: 20221021, value: 20221021 },
-  { label: 20221024, value: 20221024 },
+  // { label: 20221024, value: 20221024 },
   { label: 20221025, value: 20221025 },
   { label: 20221027, value: 20221027 },
   { label: 20221028, value: 20221028 },
