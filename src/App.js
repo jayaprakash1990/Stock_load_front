@@ -16,6 +16,7 @@ import {
 import CheckHighReversal from "./component/checkHighReversal/CheckHighReversal";
 import SpreadStock from "./component/spreadStock/SpreadStock";
 import SpreadStockReverse from "./component/spreadStock/SpreadStockReverse";
+import OptionSpreadLong from "./component/optionSpread/OptionSpreadLong";
 
 function App() {
   return (
@@ -43,6 +44,9 @@ function App() {
           <div className="px-4">
             <NavLink to="/spreadStockReverse">Spread Stock Reverse</NavLink>
           </div>
+          <div className="px-4">
+            <NavLink to="/optionSpreadLong">Spread Option Long</NavLink>
+          </div>
         </div>
         <Switch>
           <Route exact path="/" component={Home} />
@@ -60,6 +64,7 @@ function App() {
             component={SpreadStockReverse}
           />
           <Route exact path="/checkOiVolume" component={CheckOiVolume} />
+          <Route exact path="/optionSpreadLong" component={OptionSpreadLong} />
         </Switch>
       </div>
     </Router>
