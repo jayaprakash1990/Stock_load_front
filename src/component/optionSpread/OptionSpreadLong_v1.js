@@ -11,16 +11,17 @@ const OptionSpreadLong = () => {
   const [finalResult, setFinalResult] = useState([]);
   const [jsonResult, setJsonResult] = useState({});
   const [completeData, setCompleteData] = useState([]);
-  const [optionValue, setOptionValue] = useState(null);
-  const [stopLoss, setStopLoss] = useState(-900);
+  const [ceValue, setCeValue] = useState(null);
+  const [peValue, setPeValue] = useState(null);
+  const [stopLoss, setStopLoss] = useState(-150);
   const [niftyValue, setNiftyValue] = useState({});
-  const [candleTime, setCandleTime] = useState({ label: 5, value: 5 });
+  const [candleTime, setCandleTime] = useState({ label: 15, value: 15 });
   const [reference, setReference] = useState(0);
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(0);
   const [dayEndValue, setDayEndValue] = useState(0);
 
-  let optionSlTrigger = { isTrigger: false, value: stopLoss };
+  let slTrigger = false;
 
   const captialAmount = 50000;
   const brokerage = 60;
@@ -33,18 +34,9 @@ const OptionSpreadLong = () => {
 
   useEffect(() => {
     if (selectDate) {
-      let t = 15 + candleTime.value - 1;
-      let endDate = "" + selectDate.value + "09" + t;
-      let startDate = "" + selectDate.value + "0915";
-      console.log(startDate, endDate);
+      let date = "" + selectDate.value + "0915";
       axios
-        .get(
-          serviceURL +
-            "/fetchNiftyPos/" +
-            parseInt(startDate) +
-            "/" +
-            parseInt(endDate)
-        )
+        .get(serviceURL + "/fetchCurrentNiftyValue/" + parseInt(date))
         .then((response) => {
           // console.log('*******************88');
           if (response) {
@@ -57,24 +49,20 @@ const OptionSpreadLong = () => {
   }, [selectDate]);
 
   useEffect(() => {
-    if (niftyValue && niftyValue.niftyPos) {
+    if (niftyValue && niftyValue.stockClose) {
       let sDate = parseInt("" + selectDate.value + "0915");
       let eDate = parseInt("" + selectDate.value + "1445");
-      let strike = roundNum50(niftyValue.closeNifty);
-      let tmpOptionValue = {};
-      if (niftyValue.niftyPos === "short") {
-        tmpOptionValue = {
-          label: "NIFTYWK" + strike + "PE",
-          value: "NIFTYWK" + strike + "PE",
-        };
-      } else {
-        tmpOptionValue = {
-          label: "NIFTYWK" + strike + "CE",
-          value: "NIFTYWK" + strike + "CE",
-        };
-      }
-
-      setOptionValue(tmpOptionValue);
+      let strike = roundNum50(niftyValue.stockClose);
+      let tmpCeValue = {
+        label: "NIFTYWK" + strike + "CE",
+        value: "NIFTYWK" + strike + "CE",
+      };
+      let tmpPeVale = {
+        label: "NIFTYWK" + strike + "PE",
+        value: "NIFTYWK" + strike + "PE",
+      };
+      setCeValue(tmpCeValue);
+      setPeValue(tmpPeVale);
 
       axios
         .get(
@@ -84,8 +72,9 @@ const OptionSpreadLong = () => {
             "/" +
             eDate +
             "/" +
-            tmpOptionValue.value +
-            "/1234567"
+            tmpCeValue.value +
+            "/" +
+            tmpPeVale.value
         )
         .then((response) => {
           // console.log('*******************88');
@@ -111,55 +100,40 @@ const OptionSpreadLong = () => {
     // e.preventDefault();
     setFinalResult([]);
     let finalArr = [];
-    let optionStockClose =
-      completeData[candleTime.value - 1][optionValue.value].stockClose;
-
-    let tempReferenceValue = optionStockClose * 50;
+    let ceStockClose = completeData[candleTime.value][ceValue.value].stockClose;
+    let peStockClose = completeData[candleTime.value][peValue.value].stockClose;
+    let tempReferenceValue = ceStockClose * 50 + peStockClose * 50;
 
     let bufferTempReferenceValue =
-      (optionStockClose + (optionStockClose * bufferValue) / 100) * 50;
+      (ceStockClose + (ceStockClose * bufferValue) / 100) * 50 +
+      (peStockClose + (peStockClose * bufferValue) / 100) * 50;
 
     console.log("originalReferenceValue ", tempReferenceValue);
-    console.log("bufferTempReferenceValue ", bufferTempReferenceValue);
-
     setReference(bufferTempReferenceValue);
 
     for (let i = 0; i < completeData.length; i++) {
       if (i >= candleTime.value) {
-        // let totalCalculateValue =
-        //   bufferTempReferenceValue -
-        //   (completeData[i][ceValue.value].stockClose * 50 +
-        //     completeData[i][peValue.value].stockClose * 50);
-
-        let tmpOptionValueChange =
-          completeData[i][optionValue.value].stockLow * 50 -
+        let totalCalculateValue =
+          completeData[i][ceValue.value].stockClose * 50 +
+          completeData[i][peValue.value].stockClose * 50 -
           bufferTempReferenceValue;
-
-        if (tmpOptionValueChange < optionSlTrigger.value) {
-          optionSlTrigger.isTrigger = true;
+        if (totalCalculateValue < stopLoss) {
+          slTrigger = true;
         }
-
-        tmpOptionValueChange = optionSlTrigger.isTrigger
-          ? optionSlTrigger.value
-          : Number(parseFloat(tmpOptionValueChange.toString()).toFixed(2));
-
         let tmpJson = {
-          dateValue: completeData[i][optionValue.value].stockDate,
-          optionValue: completeData[i][optionValue.value].stockLow,
-          optionValueChange: tmpOptionValueChange,
-
-          // totalValue: Number(
-          //   parseFloat(
-          //     (tmpOptionValueChange + tmpPeValueChange).toString()
-          //   ).toFixed(2)
-          // ),
+          dateValue: completeData[i][ceValue.value].stockDate,
+          ceOptionValue: completeData[i][ceValue.value].stockClose,
+          peOptionValue: completeData[i][peValue.value].stockClose,
+          totalValue: slTrigger
+            ? stopLoss
+            : Number(parseFloat(totalCalculateValue.toString()).toFixed(2)),
         };
         finalArr.push(tmpJson);
       }
     }
     let closeArr = [];
     finalArr.forEach((arr) => {
-      closeArr.push(arr.optionValueChange);
+      closeArr.push(arr.totalValue);
     });
     let tmpMinValue = Math.min(...closeArr);
     let tmpMaxValue = Math.max(...closeArr);
@@ -168,7 +142,7 @@ const OptionSpreadLong = () => {
     setMaxValue(tmpMaxValue);
     setDayEndValue(tmpDayEndValue);
     setFinalResult(finalArr);
-
+    console.log("bufferTempReferenceValue ", bufferTempReferenceValue);
     let finalConcatValue =
       tmpMinValue + "," + tmpMaxValue + "," + tmpDayEndValue + ";\r\n";
     axios
@@ -206,16 +180,24 @@ const OptionSpreadLong = () => {
         </Col>
         <Col md={1}></Col>
         <Col md={3}>
-          OptionValue :{" "}
+          CE :{" "}
           <Select
-            value={optionValue}
-            defaultValue={optionValue}
-            onChange={setOptionValue}
+            value={ceValue}
+            defaultValue={ceValue}
+            onChange={setCeValue}
             options={optionData}
           />
         </Col>
         <Col md={1}></Col>
-        <Col md={3}></Col>
+        <Col md={3}>
+          PE :{" "}
+          <Select
+            value={peValue}
+            defaultValue={peValue}
+            onChange={setPeValue}
+            options={optionData}
+          />
+        </Col>
       </Row>
       <br />
       <Row className="mt-3 pt-3">
@@ -239,10 +221,10 @@ const OptionSpreadLong = () => {
           />
         </Col>
         <Col md={2} className="mt-3 pt-3">
-          Nifty Value : {niftyValue && niftyValue.closeNifty}
+          Nifty Value : {niftyValue && niftyValue.stockClose}
         </Col>
         <Col md={2} className="mt-3 pt-3">
-          Round off Value : {niftyValue && roundNum50(niftyValue.closeNifty)}
+          Round off Value : {niftyValue && roundNum50(niftyValue.stockClose)}
         </Col>
       </Row>
       <br />
@@ -270,28 +252,22 @@ const OptionSpreadLong = () => {
         <Col md={1}>
           <b>Date</b>
         </Col>
-
-        <Col md={1}></Col>
         <Col md={1}>
-          <b>Option Value</b>
+          <b>CE Value</b>
         </Col>
-        <Col md={1}></Col>
-        <Col md={2}>
-          <b>Option Value Change</b>
+        <Col md={1}>
+          <b>PE Value</b>
         </Col>
-        <Col md={2}></Col>
-        <Col md={1}></Col>
+        <Col md={1}>
+          <b>Gross Total</b>
+        </Col>
       </Row>
       {finalResult.map((result, index) => (
         <Row className="ml-1" key={index}>
           <Col md={1}>{result.dateValue}</Col>
-
-          <Col md={1}></Col>
-          <Col md={1}>{result.optionValue}</Col>
-          <Col md={1}></Col>
-          <Col md={2}>{result.optionValueChange}</Col>
-          <Col md={2}></Col>
-          <Col md={1}></Col>
+          <Col md={1}>{result.ceOptionValue}</Col>
+          <Col md={1}>{result.peOptionValue}</Col>
+          <Col md={1}>{result.totalValue}</Col>
         </Row>
       ))}
     </React.Fragment>

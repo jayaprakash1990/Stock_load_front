@@ -45,12 +45,12 @@ function App() {
           {/* <div className="px-4">
             <NavLink to="/spreadStockReverse">Spread Stock Reverse</NavLink>
           </div> */}
-          {/* <div className="px-4">
-            <NavLink to="/optionSpreadLong">Spread Option Long</NavLink>
-          </div> */}
           <div className="px-4">
-            <NavLink to="/optionSpreadShort">Spread Option Short</NavLink>
+            <NavLink to="/optionSpreadLong">Spread Option Long</NavLink>
           </div>
+          {/* <div className="px-4">
+            <NavLink to="/optionSpreadShort">Spread Option Short</NavLink>
+          </div> */}
         </div>
         <Switch>
           <Route exact path="/" component={Home} />

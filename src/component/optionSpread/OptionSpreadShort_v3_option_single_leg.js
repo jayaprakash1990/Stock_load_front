@@ -6,15 +6,15 @@ import { serviceURL } from "../../serviceURL";
 import axios from "axios";
 import { candleTimeData } from "../../constants/stockDate";
 
-const OptionSpreadLong = () => {
+const OptionSpreadShort = () => {
   const [selectDate, setSelectDate] = useState(null);
   const [finalResult, setFinalResult] = useState([]);
   const [jsonResult, setJsonResult] = useState({});
   const [completeData, setCompleteData] = useState([]);
   const [optionValue, setOptionValue] = useState(null);
-  const [stopLoss, setStopLoss] = useState(-900);
+  const [stopLoss, setStopLoss] = useState(-1500);
   const [niftyValue, setNiftyValue] = useState({});
-  const [candleTime, setCandleTime] = useState({ label: 5, value: 5 });
+  const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
   const [reference, setReference] = useState(0);
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(0);
@@ -107,6 +107,10 @@ const OptionSpreadLong = () => {
     }
   }, [completeData]);
 
+  useEffect(() => {
+    console.log(completeData);
+  }, [completeData]);
+
   const calculateValue = () => {
     // e.preventDefault();
     setFinalResult([]);
@@ -117,7 +121,7 @@ const OptionSpreadLong = () => {
     let tempReferenceValue = optionStockClose * 50;
 
     let bufferTempReferenceValue =
-      (optionStockClose + (optionStockClose * bufferValue) / 100) * 50;
+      (optionStockClose - (optionStockClose * bufferValue) / 100) * 50;
 
     console.log("originalReferenceValue ", tempReferenceValue);
     console.log("bufferTempReferenceValue ", bufferTempReferenceValue);
@@ -132,8 +136,8 @@ const OptionSpreadLong = () => {
         //     completeData[i][peValue.value].stockClose * 50);
 
         let tmpOptionValueChange =
-          completeData[i][optionValue.value].stockLow * 50 -
-          bufferTempReferenceValue;
+          bufferTempReferenceValue -
+          completeData[i][optionValue.value].stockHigh * 50;
 
         if (tmpOptionValueChange < optionSlTrigger.value) {
           optionSlTrigger.isTrigger = true;
@@ -145,7 +149,7 @@ const OptionSpreadLong = () => {
 
         let tmpJson = {
           dateValue: completeData[i][optionValue.value].stockDate,
-          optionValue: completeData[i][optionValue.value].stockLow,
+          optionValue: completeData[i][optionValue.value].stockHigh,
           optionValueChange: tmpOptionValueChange,
 
           // totalValue: Number(
@@ -298,4 +302,4 @@ const OptionSpreadLong = () => {
   );
 };
 
-export default OptionSpreadLong;
+export default OptionSpreadShort;
