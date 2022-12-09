@@ -266,6 +266,8 @@ export const candleTimeData = [
   { label: 1, value: 1 },
   { label: 5, value: 5 },
   { label: 15, value: 15 },
+  { label: 30, value: 30 },
+  { label: 45, value: 45 },
 ];
 
 // export const stockDataSymbol = [

@@ -13,10 +13,10 @@ const OptionSpreadShort = () => {
   const [completeData, setCompleteData] = useState([]);
   const [ceValue, setCeValue] = useState(null);
   const [peValue, setPeValue] = useState(null);
-  const [stopLoss, setStopLoss] = useState(10);
+  const [stopLoss, setStopLoss] = useState(20);
 
   const [niftyValue, setNiftyValue] = useState({});
-  const [candleTime, setCandleTime] = useState({ label: 10, value: 10 });
+  const [candleTime, setCandleTime] = useState({ label: 15, value: 15 });
   const [reference, setReference] = useState(0);
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(0);
@@ -47,8 +47,6 @@ const OptionSpreadShort = () => {
       let tmpDate = "0915";
       if (candleTime.value === 5) {
         tmpDate = "0919";
-      } else if (candleTime.value === 10) {
-        tmpDate = "0924";
       } else if (candleTime.value === 15) {
         tmpDate = "0929";
       } else if (candleTime.value === 30) {
@@ -138,8 +136,6 @@ const OptionSpreadShort = () => {
     setRef({
       ceValue: ceStockClose,
       peValue: peStockClose,
-      ceEntryBufferValue: ceStockClose - (ceStockClose * bufferValue) / 100,
-      peEntryBufferValue: peStockClose - (peStockClose * bufferValue) / 100,
       ceStopLoss: twoDigitDecimal(-slCeStockTriggerPrice),
       peStopLoss: twoDigitDecimal(-slPeStockTriggerPrice),
     });
@@ -204,22 +200,24 @@ const OptionSpreadShort = () => {
         //   (completeData[i][ceValue.value].stockClose * 50 +
         //     completeData[i][peValue.value].stockClose * 50);
         // console.log(completeData[i][ceValue.value].stockDate);
-        let highStockCeValueCheck = completeData[i][ceValue.value].stockClose;
-        let highStockPeValueCheck = completeData[i][peValue.value].stockClose;
+        let highStockCeValueCheck = completeData[i][ceValue.value].stockHigh
+          ? completeData[i][ceValue.value].stockHigh
+          : completeData[i][ceValue.value].stockClose;
+        let highStockPeValueCheck = completeData[i][peValue.value].stockHigh
+          ? completeData[i][peValue.value].stockHigh
+          : completeData[i][peValue.value].stockClose;
 
         let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * 50;
         let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * 50;
-        if (!ceSlTrigger.isTrigger && tmpCeValueChange < ceSlTrigger.value) {
+        if (tmpCeValueChange < ceSlTrigger.value) {
           ceSlTrigger.isTrigger = true;
-          ceSlTrigger.value = twoDigitDecimal(tmpCeValueChange);
           if (!peSlTrigger.isTrigger) {
             // peSlTrigger.value = twoDigitDecimal(-ceSlTrigger.value / 2);
             peSlTrigger.value = 0;
           }
         }
-        if (!peSlTrigger.isTrigger && tmpPeValueChange < peSlTrigger.value) {
+        if (tmpPeValueChange < peSlTrigger.value) {
           peSlTrigger.isTrigger = true;
-          peSlTrigger.value = twoDigitDecimal(tmpPeValueChange);
           if (!ceSlTrigger.isTrigger) {
             // ceSlTrigger.value = twoDigitDecimal(-peSlTrigger.value / 2);
             ceSlTrigger.value = 0;
@@ -363,14 +361,12 @@ const OptionSpreadShort = () => {
         <Col md={3}>Day End Value : {dayEndValue}</Col>
       </Row>
       <br />
-      <Row className="mt-3 pt-3 pl-1 ml-1">
+      {/* <Row className="mt-3 pt-3 pl-1 ml-1">
         <Col md={2}>CE Entry Value : {ref.ceValue}</Col>
         <Col md={2}>PE Entry Value : {ref.peValue}</Col>
-        <Col md={2}>CE Buffer Value : {ref.ceEntryBufferValue}</Col>
-        <Col md={2}>PE Buffer Value : {ref.peEntryBufferValue}</Col>
         <Col md={2}>CE Stop Loss Value : {ref.ceStopLoss}</Col>
         <Col md={2}>PE Stop Loss Value : {ref.peStopLoss}</Col>
-      </Row>
+      </Row> */}
       <br />
 
       <Row>
