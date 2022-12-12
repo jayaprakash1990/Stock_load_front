@@ -36,9 +36,9 @@ function App() {
           {/* <div className="px-4">
             <NavLink to="/checkHighReversal">CheckHighReversal</NavLink>
           </div> */}
-          {/* <div className="px-4">
+          <div className="px-4">
             <NavLink to="/spreadStock">Spread Stock</NavLink>
-          </div> */}
+          </div>
           <div className="px-4">
             <NavLink to="/checkOiVolume">Check Oi Volume</NavLink>
           </div>

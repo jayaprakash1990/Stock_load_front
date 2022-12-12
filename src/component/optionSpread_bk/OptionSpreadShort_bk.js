@@ -13,10 +13,10 @@ const OptionSpreadShort = () => {
   const [completeData, setCompleteData] = useState([]);
   const [ceValue, setCeValue] = useState(null);
   const [peValue, setPeValue] = useState(null);
-  const [stopLoss, setStopLoss] = useState(10);
+  const [stopLoss, setStopLoss] = useState(25);
 
   const [niftyValue, setNiftyValue] = useState({});
-  const [candleTime, setCandleTime] = useState({ label: 10, value: 10 });
+  const [candleTime, setCandleTime] = useState({ label: 30, value: 30 });
   const [reference, setReference] = useState(0);
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(0);
@@ -119,10 +119,10 @@ const OptionSpreadShort = () => {
       completeData[candleTime.value - 1][peValue.value].stockClose;
 
     let tmpBufferCeStockClose =
-      ceStockClose - (ceStockClose * bufferValue) / 100;
+      ceStockClose + (ceStockClose * bufferValue) / 100;
 
     let tmpBufferPeStockClose =
-      peStockClose - (peStockClose * bufferValue) / 100;
+      peStockClose + (peStockClose * bufferValue) / 100;
 
     // let bufferCeStockClose = tmpBufferCeStockClose * 50;
     // let bufferPeStockClose = tmpBufferPeStockClose * 50;
@@ -138,8 +138,12 @@ const OptionSpreadShort = () => {
     setRef({
       ceValue: ceStockClose,
       peValue: peStockClose,
-      ceEntryBufferValue: ceStockClose - (ceStockClose * bufferValue) / 100,
-      peEntryBufferValue: peStockClose - (peStockClose * bufferValue) / 100,
+      ceEntryBufferValue: twoDigitDecimal(
+        ceStockClose + (ceStockClose * bufferValue) / 100
+      ),
+      peEntryBufferValue: twoDigitDecimal(
+        peStockClose + (peStockClose * bufferValue) / 100
+      ),
       ceStopLoss: twoDigitDecimal(-slCeStockTriggerPrice),
       peStopLoss: twoDigitDecimal(-slPeStockTriggerPrice),
     });
@@ -180,13 +184,13 @@ const OptionSpreadShort = () => {
     let tempReferenceValue = ceStockClose * 50 + peStockClose * 50;
 
     let bufferCeStockClose =
-      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50;
+      (ceStockClose + (ceStockClose * bufferValue) / 100) * 50;
     let bufferPeStockClose =
-      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
+      (peStockClose + (peStockClose * bufferValue) / 100) * 50;
 
     let bufferTempReferenceValue =
-      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50 +
-      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
+      (ceStockClose + (ceStockClose * bufferValue) / 100) * 50 +
+      (peStockClose + (peStockClose * bufferValue) / 100) * 50;
 
     console.log("originalReferenceValue ", tempReferenceValue);
     console.log("bufferCeStockClose ", bufferCeStockClose);
@@ -207,8 +211,8 @@ const OptionSpreadShort = () => {
         let highStockCeValueCheck = completeData[i][ceValue.value].stockClose;
         let highStockPeValueCheck = completeData[i][peValue.value].stockClose;
 
-        let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * 50;
-        let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * 50;
+        let tmpCeValueChange = highStockCeValueCheck * 50 - bufferCeStockClose;
+        let tmpPeValueChange = highStockPeValueCheck * 50 - bufferPeStockClose;
         if (!ceSlTrigger.isTrigger && tmpCeValueChange < ceSlTrigger.value) {
           ceSlTrigger.isTrigger = true;
           ceSlTrigger.value = twoDigitDecimal(tmpCeValueChange);
@@ -222,6 +226,7 @@ const OptionSpreadShort = () => {
           peSlTrigger.value = twoDigitDecimal(tmpPeValueChange);
           if (!ceSlTrigger.isTrigger) {
             // ceSlTrigger.value = twoDigitDecimal(-peSlTrigger.value / 2);
+
             ceSlTrigger.value = 0;
           }
         }
