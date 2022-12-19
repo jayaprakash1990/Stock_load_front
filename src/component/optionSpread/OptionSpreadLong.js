@@ -7,25 +7,46 @@ import axios from "axios";
 import { candleTimeData } from "../../constants/stockDate";
 
 const OptionSpreadLong = () => {
+  ///////////////////////////////////////
+  //////////////////////////////////////////
+  ///////////////////////////////////////////////
+
+  const [candleTime, setCandleTime] = useState({ label: 5, value: 5 });
+
+  const [stopLoss, setStopLoss] = useState(20);
+
+  //////////////////////////////////////////
+  /////////////////////////////////////////////
+  ////////////////////////////////////////
   const [selectDate, setSelectDate] = useState(null);
   const [finalResult, setFinalResult] = useState([]);
   const [jsonResult, setJsonResult] = useState({});
   const [completeData, setCompleteData] = useState([]);
-  const [optionValue, setOptionValue] = useState(null);
-  const [stopLoss, setStopLoss] = useState(-900);
+  const [ceValue, setCeValue] = useState(null);
+  const [peValue, setPeValue] = useState(null);
+
   const [niftyValue, setNiftyValue] = useState({});
-  const [candleTime, setCandleTime] = useState({ label: 5, value: 5 });
+
   const [reference, setReference] = useState(0);
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(0);
   const [dayEndValue, setDayEndValue] = useState(0);
+  const [dayEndMaxValue, setDayEndMaxValue] = useState(0);
+  const [ref, setRef] = useState({
+    ceValue: 0,
+    ceStopLoss: 0,
+    peStopLoss: 0,
+    peValue: 0,
+  });
 
-  let optionSlTrigger = { isTrigger: false, value: stopLoss };
+  let ceSlTrigger = { isTrigger: false, value: stopLoss };
+  let peSlTrigger = { isTrigger: false, value: stopLoss };
 
   const captialAmount = 50000;
   const brokerage = 60;
   const qty = 50;
   const bufferValue = 1;
+  const secondStopLoss = 1;
 
   const roundNum50 = (value) => {
     return Math.round(value / 50) * 50;
@@ -33,18 +54,23 @@ const OptionSpreadLong = () => {
 
   useEffect(() => {
     if (selectDate) {
-      let t = 15 + candleTime.value - 1;
-      let endDate = "" + selectDate.value + "09" + t;
-      let startDate = "" + selectDate.value + "0915";
-      console.log(startDate, endDate);
+      let tmpDate = "0915";
+      if (candleTime.value === 3) {
+        tmpDate = "0917";
+      } else if (candleTime.value === 5) {
+        tmpDate = "0919";
+      } else if (candleTime.value === 10) {
+        tmpDate = "0924";
+      } else if (candleTime.value === 15) {
+        tmpDate = "0929";
+      } else if (candleTime.value === 30) {
+        tmpDate = "0944";
+      } else if (candleTime.value === 45) {
+        tmpDate = "0959";
+      }
+      let date = "" + selectDate.value + tmpDate;
       axios
-        .get(
-          serviceURL +
-            "/fetchNiftyPos/" +
-            parseInt(startDate) +
-            "/" +
-            parseInt(endDate)
-        )
+        .get(serviceURL + "/fetchCurrentNiftyValue/" + parseInt(date))
         .then((response) => {
           // console.log('*******************88');
           if (response) {
@@ -57,24 +83,20 @@ const OptionSpreadLong = () => {
   }, [selectDate]);
 
   useEffect(() => {
-    if (niftyValue && niftyValue.niftyPos) {
+    if (niftyValue && niftyValue.stockClose) {
       let sDate = parseInt("" + selectDate.value + "0915");
-      let eDate = parseInt("" + selectDate.value + "1445");
-      let strike = roundNum50(niftyValue.closeNifty);
-      let tmpOptionValue = {};
-      if (niftyValue.niftyPos === "short") {
-        tmpOptionValue = {
-          label: "NIFTYWK" + strike + "PE",
-          value: "NIFTYWK" + strike + "PE",
-        };
-      } else {
-        tmpOptionValue = {
-          label: "NIFTYWK" + strike + "CE",
-          value: "NIFTYWK" + strike + "CE",
-        };
-      }
-
-      setOptionValue(tmpOptionValue);
+      let eDate = parseInt("" + selectDate.value + "1510");
+      let strike = roundNum50(niftyValue.stockClose);
+      let tmpCeValue = {
+        label: "NIFTYWK" + strike + "CE",
+        value: "NIFTYWK" + strike + "CE",
+      };
+      let tmpPeVale = {
+        label: "NIFTYWK" + strike + "PE",
+        value: "NIFTYWK" + strike + "PE",
+      };
+      setCeValue(tmpCeValue);
+      setPeValue(tmpPeVale);
 
       axios
         .get(
@@ -84,8 +106,9 @@ const OptionSpreadLong = () => {
             "/" +
             eDate +
             "/" +
-            tmpOptionValue.value +
-            "/1234567"
+            tmpCeValue.value +
+            "/" +
+            tmpPeVale.value
         )
         .then((response) => {
           // console.log('*******************88');
@@ -101,76 +124,162 @@ const OptionSpreadLong = () => {
     }
   }, [niftyValue]);
 
+  const checkAndSetStopLoss = () => {
+    let ceStockClose =
+      completeData[candleTime.value - 1][ceValue.value].stockClose;
+    let peStockClose =
+      completeData[candleTime.value - 1][peValue.value].stockClose;
+
+    let tmpBufferCeStockClose =
+      ceStockClose - (ceStockClose * bufferValue) / 100;
+
+    let tmpBufferPeStockClose =
+      peStockClose - (peStockClose * bufferValue) / 100;
+
+    // let bufferCeStockClose = tmpBufferCeStockClose * 50;
+    // let bufferPeStockClose = tmpBufferPeStockClose * 50;
+
+    // let slCeStockTriggerPrice =
+    //   (tmpBufferCeStockClose + (stopLoss * tmpBufferCeStockClose) / 100) * 50;
+
+    // let slPeStockTriggerPrice =
+    //   (tmpBufferPeStockClose + (stopLoss * tmpBufferPeStockClose) / 100) * 50;
+    let slCeStockTriggerPrice = ((stopLoss * tmpBufferCeStockClose) / 100) * 50;
+
+    let slPeStockTriggerPrice = ((stopLoss * tmpBufferPeStockClose) / 100) * 50;
+    setRef({
+      ceValue: ceStockClose,
+      peValue: peStockClose,
+      ceEntryBufferValue: ceStockClose - (ceStockClose * bufferValue) / 100,
+      peEntryBufferValue: peStockClose - (peStockClose * bufferValue) / 100,
+      ceStopLoss: twoDigitDecimal(-slCeStockTriggerPrice),
+      peStopLoss: twoDigitDecimal(-slPeStockTriggerPrice),
+    });
+
+    ceSlTrigger.value = twoDigitDecimal(-slCeStockTriggerPrice);
+    peSlTrigger.value = twoDigitDecimal(-slPeStockTriggerPrice);
+    let tmpDayEndMaxValue =
+      slCeStockTriggerPrice < slPeStockTriggerPrice
+        ? twoDigitDecimal(slPeStockTriggerPrice)
+        : twoDigitDecimal(slCeStockTriggerPrice);
+    tmpDayEndMaxValue = tmpDayEndMaxValue > 1500 ? tmpDayEndMaxValue : 1500;
+    setDayEndMaxValue(tmpDayEndMaxValue);
+    return tmpDayEndMaxValue;
+  };
+
+  const twoDigitDecimal = (value) => {
+    return Number(parseFloat(value.toString()).toFixed(2));
+  };
+
   useEffect(() => {
     if (completeData.length > 0) {
-      calculateValue();
+      let tDayEndMax = checkAndSetStopLoss();
+      const timer = setTimeout(() => {
+        calculateValue(tDayEndMax);
+        console.log("This will run after 3 second!");
+      }, 10);
     }
   }, [completeData]);
 
-  const calculateValue = () => {
+  const calculateValue = (tDayEndMax) => {
     // e.preventDefault();
     setFinalResult([]);
     let finalArr = [];
-    let optionStockClose =
-      completeData[candleTime.value - 1][optionValue.value].stockClose;
+    let ceStockClose =
+      completeData[candleTime.value - 1][ceValue.value].stockClose;
+    let peStockClose =
+      completeData[candleTime.value - 1][peValue.value].stockClose;
+    let tempReferenceValue = ceStockClose * 50 + peStockClose * 50;
 
-    let tempReferenceValue = optionStockClose * 50;
+    let bufferCeStockClose =
+      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50;
+    let bufferPeStockClose =
+      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
 
     let bufferTempReferenceValue =
-      (optionStockClose + (optionStockClose * bufferValue) / 100) * 50;
+      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50 +
+      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
 
     console.log("originalReferenceValue ", tempReferenceValue);
-    console.log("bufferTempReferenceValue ", bufferTempReferenceValue);
-
+    console.log("bufferCeStockClose ", bufferCeStockClose);
+    console.log("bufferPeStockClose ", bufferPeStockClose);
     setReference(bufferTempReferenceValue);
 
     for (let i = 0; i < completeData.length; i++) {
-      if (i >= candleTime.value) {
+      if (
+        i >= candleTime.value &&
+        completeData[i][ceValue.value] &&
+        completeData[i][peValue.value]
+      ) {
         // let totalCalculateValue =
         //   bufferTempReferenceValue -
         //   (completeData[i][ceValue.value].stockClose * 50 +
         //     completeData[i][peValue.value].stockClose * 50);
+        // console.log(completeData[i][ceValue.value].stockDate);
+        let highStockCeValueCheck = completeData[i][ceValue.value].stockClose;
+        let highStockPeValueCheck = completeData[i][peValue.value].stockClose;
 
-        let tmpOptionValueChange =
-          completeData[i][optionValue.value].stockLow * 50 -
-          bufferTempReferenceValue;
-
-        if (tmpOptionValueChange < optionSlTrigger.value) {
-          optionSlTrigger.isTrigger = true;
+        let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * 50;
+        let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * 50;
+        if (!ceSlTrigger.isTrigger && tmpCeValueChange < ceSlTrigger.value) {
+          ceSlTrigger.isTrigger = true;
+          ceSlTrigger.value = twoDigitDecimal(tmpCeValueChange);
+          if (!peSlTrigger.isTrigger) {
+            // peSlTrigger.value = twoDigitDecimal(-ceSlTrigger.value / 4);
+            peSlTrigger.value = 0;
+          }
         }
-
-        tmpOptionValueChange = optionSlTrigger.isTrigger
-          ? optionSlTrigger.value
-          : Number(parseFloat(tmpOptionValueChange.toString()).toFixed(2));
-
+        if (!peSlTrigger.isTrigger && tmpPeValueChange < peSlTrigger.value) {
+          peSlTrigger.isTrigger = true;
+          peSlTrigger.value = twoDigitDecimal(tmpPeValueChange);
+          if (!ceSlTrigger.isTrigger) {
+            // ceSlTrigger.value = twoDigitDecimal(-peSlTrigger.value / 4);
+            ceSlTrigger.value = 0;
+          }
+        }
+        tmpCeValueChange = ceSlTrigger.isTrigger
+          ? ceSlTrigger.value
+          : Number(parseFloat(tmpCeValueChange.toString()).toFixed(2));
+        tmpPeValueChange = peSlTrigger.isTrigger
+          ? peSlTrigger.value
+          : Number(parseFloat(tmpPeValueChange.toString()).toFixed(2));
         let tmpJson = {
-          dateValue: completeData[i][optionValue.value].stockDate,
-          optionValue: completeData[i][optionValue.value].stockLow,
-          optionValueChange: tmpOptionValueChange,
-
-          // totalValue: Number(
-          //   parseFloat(
-          //     (tmpOptionValueChange + tmpPeValueChange).toString()
-          //   ).toFixed(2)
-          // ),
+          dateValue: completeData[i][ceValue.value].stockDate,
+          ceOptionValue: highStockCeValueCheck,
+          peOptionValue: highStockPeValueCheck,
+          ceValueChange: tmpCeValueChange,
+          peValueChange: tmpPeValueChange,
+          totalValue: Number(
+            parseFloat(
+              (tmpCeValueChange + tmpPeValueChange).toString()
+            ).toFixed(2)
+          ),
         };
         finalArr.push(tmpJson);
       }
     }
     let closeArr = [];
     finalArr.forEach((arr) => {
-      closeArr.push(arr.optionValueChange);
+      closeArr.push(arr.totalValue);
     });
     let tmpMinValue = Math.min(...closeArr);
     let tmpMaxValue = Math.max(...closeArr);
     let tmpDayEndValue = closeArr[closeArr.length - 1];
+
     setMinValue(tmpMinValue);
     setMaxValue(tmpMaxValue);
     setDayEndValue(tmpDayEndValue);
     setFinalResult(finalArr);
-
+    console.log("bufferTempReferenceValue ", bufferTempReferenceValue);
     let finalConcatValue =
-      tmpMinValue + "," + tmpMaxValue + "," + tmpDayEndValue + ";\r\n";
+      tDayEndMax +
+      "," +
+      tmpMinValue +
+      "," +
+      tmpMaxValue +
+      "," +
+      tmpDayEndValue +
+      ";\r\n";
     axios
       .get(serviceURL + "/writeInCsv/" + finalConcatValue)
       .then((response) => {
@@ -179,7 +288,10 @@ const OptionSpreadLong = () => {
           let index = optionsDate.findIndex(
             (x) => x.value === selectDate.value
           );
-          setSelectDate(optionsDate[index + 1]);
+
+          ////TODO: Date needs to comment to check
+
+          // setSelectDate(optionsDate[index + 1]);
 
           // console.log(index);
           // alert(response.data.result);
@@ -206,16 +318,24 @@ const OptionSpreadLong = () => {
         </Col>
         <Col md={1}></Col>
         <Col md={3}>
-          OptionValue :{" "}
+          CE :{" "}
           <Select
-            value={optionValue}
-            defaultValue={optionValue}
-            onChange={setOptionValue}
+            value={ceValue}
+            defaultValue={ceValue}
+            onChange={setCeValue}
             options={optionData}
           />
         </Col>
         <Col md={1}></Col>
-        <Col md={3}></Col>
+        <Col md={3}>
+          PE :{" "}
+          <Select
+            value={peValue}
+            defaultValue={peValue}
+            onChange={setPeValue}
+            options={optionData}
+          />
+        </Col>
       </Row>
       <br />
       <Row className="mt-3 pt-3">
@@ -239,10 +359,10 @@ const OptionSpreadLong = () => {
           />
         </Col>
         <Col md={2} className="mt-3 pt-3">
-          Nifty Value : {niftyValue && niftyValue.closeNifty}
+          Nifty Value : {niftyValue && niftyValue.stockClose}
         </Col>
         <Col md={2} className="mt-3 pt-3">
-          Round off Value : {niftyValue && roundNum50(niftyValue.closeNifty)}
+          Round off Value : {niftyValue && roundNum50(niftyValue.stockClose)}
         </Col>
       </Row>
       <br />
@@ -252,9 +372,19 @@ const OptionSpreadLong = () => {
       </Row>
       <br />
       <Row className="mt-3 pt-3 pl-1 ml-1">
+        <Col md={3}>Stop Loss Max: {dayEndMaxValue}</Col>
         <Col md={3}>Minimum Value : {minValue}</Col>
         <Col md={3}>Maximum Value : {maxValue}</Col>
         <Col md={3}>Day End Value : {dayEndValue}</Col>
+      </Row>
+      <br />
+      <Row className="mt-3 pt-3 pl-1 ml-1">
+        <Col md={2}>CE Entry Value : {ref.ceValue}</Col>
+        <Col md={2}>PE Entry Value : {ref.peValue}</Col>
+        <Col md={2}>CE Buffer Value : {ref.ceEntryBufferValue}</Col>
+        <Col md={2}>PE Buffer Value : {ref.peEntryBufferValue}</Col>
+        <Col md={2}>CE Stop Loss Value : {ref.ceStopLoss}</Col>
+        <Col md={2}>PE Stop Loss Value : {ref.peStopLoss}</Col>
       </Row>
       <br />
 
@@ -271,27 +401,33 @@ const OptionSpreadLong = () => {
           <b>Date</b>
         </Col>
 
-        <Col md={1}></Col>
         <Col md={1}>
-          <b>Option Value</b>
+          <b>CE Value</b>
+        </Col>
+        <Col md={1}>
+          <b>PE Value</b>
         </Col>
         <Col md={1}></Col>
         <Col md={2}>
-          <b>Option Value Change</b>
+          <b>CE Value Change</b>
         </Col>
-        <Col md={2}></Col>
-        <Col md={1}></Col>
+        <Col md={2}>
+          <b>PE Value Change</b>
+        </Col>
+        <Col md={1}>
+          <b>Gross Total</b>
+        </Col>
       </Row>
       {finalResult.map((result, index) => (
         <Row className="ml-1" key={index}>
           <Col md={1}>{result.dateValue}</Col>
 
+          <Col md={1}>{result.ceOptionValue}</Col>
+          <Col md={1}>{result.peOptionValue}</Col>
           <Col md={1}></Col>
-          <Col md={1}>{result.optionValue}</Col>
-          <Col md={1}></Col>
-          <Col md={2}>{result.optionValueChange}</Col>
-          <Col md={2}></Col>
-          <Col md={1}></Col>
+          <Col md={2}>{result.ceValueChange}</Col>
+          <Col md={2}>{result.peValueChange}</Col>
+          <Col md={1}>{result.totalValue}</Col>
         </Row>
       ))}
     </React.Fragment>

@@ -11,9 +11,11 @@ const OptionSpreadShort = () => {
   //////////////////////////////////////////
   ///////////////////////////////////////////////
 
-  const [candleTime, setCandleTime] = useState({ label: 5, value: 5 });
+  const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
 
-  const [stopLoss, setStopLoss] = useState(20);
+  const [stopLoss, setStopLoss] = useState(38);
+
+  const skipMinutes = 1;
 
   //////////////////////////////////////////
   /////////////////////////////////////////////
@@ -55,10 +57,14 @@ const OptionSpreadShort = () => {
   useEffect(() => {
     if (selectDate) {
       let tmpDate = "0915";
-      if (candleTime.value === 3) {
+      if (candleTime.value === 2) {
+        tmpDate = "0916";
+      } else if (candleTime.value === 3) {
         tmpDate = "0917";
       } else if (candleTime.value === 5) {
         tmpDate = "0919";
+      } else if (candleTime.value === 8) {
+        tmpDate = "0922";
       } else if (candleTime.value === 10) {
         tmpDate = "0924";
       } else if (candleTime.value === 15) {
@@ -72,7 +78,7 @@ const OptionSpreadShort = () => {
       axios
         .get(serviceURL + "/fetchCurrentNiftyValue/" + parseInt(date))
         .then((response) => {
-          // console.log('*******************88');
+          console.log(date);
           if (response) {
             setNiftyValue(response.data);
           } else {
@@ -116,7 +122,29 @@ const OptionSpreadShort = () => {
             let tmpJsonResult = response.data;
             setJsonResult(tmpJsonResult);
             let tmpCompleteData = Object.values(tmpJsonResult);
-            setCompleteData(tmpCompleteData);
+
+            let finalTData = [];
+
+            //TODO: Skip minutes
+            let i = 0;
+            tmpCompleteData.forEach((e) => {
+              if (i >= candleTime.value) {
+                if (
+                  e[tmpCeValue.value] &&
+                  e[tmpCeValue.value].stockDate &&
+                  e[tmpCeValue.value].stockDate % skipMinutes === 0
+                ) {
+                  finalTData.push(e);
+                }
+              } else {
+                finalTData.push(e);
+              }
+              i++;
+            });
+            // console.log(finalTData);
+            //////////
+
+            setCompleteData(finalTData);
           } else {
             alert("Problem with fetching Nifty Value");
           }
@@ -200,9 +228,9 @@ const OptionSpreadShort = () => {
       (ceStockClose - (ceStockClose * bufferValue) / 100) * 50 +
       (peStockClose - (peStockClose * bufferValue) / 100) * 50;
 
-    console.log("originalReferenceValue ", tempReferenceValue);
-    console.log("bufferCeStockClose ", bufferCeStockClose);
-    console.log("bufferPeStockClose ", bufferPeStockClose);
+    // console.log("originalReferenceValue ", tempReferenceValue);
+    // console.log("bufferCeStockClose ", bufferCeStockClose);
+    // console.log("bufferPeStockClose ", bufferPeStockClose);
     setReference(bufferTempReferenceValue);
 
     for (let i = 0; i < completeData.length; i++) {
@@ -270,7 +298,7 @@ const OptionSpreadShort = () => {
     setMaxValue(tmpMaxValue);
     setDayEndValue(tmpDayEndValue);
     setFinalResult(finalArr);
-    console.log("bufferTempReferenceValue ", bufferTempReferenceValue);
+    // console.log("bufferTempReferenceValue ", bufferTempReferenceValue);
     let finalConcatValue =
       tDayEndMax +
       "," +
@@ -289,7 +317,7 @@ const OptionSpreadShort = () => {
             (x) => x.value === selectDate.value
           );
 
-          ////TODO: Date needs to comment to check
+          //TODO: Date needs to comment to check
 
           setSelectDate(optionsDate[index + 1]);
 

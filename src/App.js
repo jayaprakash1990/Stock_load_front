@@ -45,9 +45,9 @@ function App() {
           {/* <div className="px-4">
             <NavLink to="/spreadStockReverse">Spread Stock Reverse</NavLink>
           </div> */}
-          {/* <div className="px-4">
+          <div className="px-4">
             <NavLink to="/optionSpreadLong">Spread Option Long</NavLink>
-          </div> */}
+          </div>
           <div className="px-4">
             <NavLink to="/optionSpreadShort">Spread Option Short</NavLink>
           </div>
