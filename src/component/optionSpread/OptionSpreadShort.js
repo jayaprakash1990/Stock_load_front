@@ -13,7 +13,7 @@ const OptionSpreadShort = () => {
 
   const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
 
-  const [stopLoss, setStopLoss] = useState(38);
+  const [stopLoss, setStopLoss] = useState(40);
 
   const skipMinutes = 1;
 
@@ -253,16 +253,18 @@ const OptionSpreadShort = () => {
           ceSlTrigger.isTrigger = true;
           ceSlTrigger.value = twoDigitDecimal(tmpCeValueChange);
           if (!peSlTrigger.isTrigger) {
+            // peSlTrigger.value = twoDigitDecimal(ceSlTrigger.value / 2);
             // peSlTrigger.value = twoDigitDecimal(-ceSlTrigger.value / 2);
-            peSlTrigger.value = 0;
+            // peSlTrigger.value = 0;
           }
         }
         if (!peSlTrigger.isTrigger && tmpPeValueChange < peSlTrigger.value) {
           peSlTrigger.isTrigger = true;
           peSlTrigger.value = twoDigitDecimal(tmpPeValueChange);
           if (!ceSlTrigger.isTrigger) {
+            // ceSlTrigger.value = twoDigitDecimal(peSlTrigger.value / 2);
             // ceSlTrigger.value = twoDigitDecimal(-peSlTrigger.value / 2);
-            ceSlTrigger.value = 0;
+            // ceSlTrigger.value = 0;
           }
         }
         tmpCeValueChange = ceSlTrigger.isTrigger
