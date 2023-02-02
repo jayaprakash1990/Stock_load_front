@@ -39,7 +39,7 @@ const Miscellaneous = () => {
           Not Refreshed... click this{" "}
           <a
             target="#"
-            href="https://kite.zerodha.com/connect/login?v=3&api_key=ab1p4zkauvkxy4gt"
+            href="https://kite.zerodha.com/connect/login?v=3&api_key=q4jcgtius5r3ekz5"
           >
             link
           </a>{" "}

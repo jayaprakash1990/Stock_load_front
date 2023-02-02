@@ -263,11 +263,10 @@ export const stopLossData = [
 ];
 
 export const candleTimeData = [
-  { label: 1, value: 1 },
-  { label: 5, value: 5 },
-  { label: 15, value: 15 },
-  { label: 30, value: 30 },
-  { label: 45, value: 45 },
+  { label: "091559", value: "091559" },
+  { label: "092959", value: "092959" },
+  { label: "094459", value: "094459" },
+  { label: "095959", value: "095959" },
 ];
 
 // export const stockDataSymbol = [
