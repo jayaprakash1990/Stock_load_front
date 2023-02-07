@@ -12,11 +12,14 @@ const HistoricOptionShort = () => {
   ///////////////////////////////////////////////
 
   const [candleTime, setCandleTime] = useState({
-    label: "091559",
-    value: "091559",
+    label: "095959",
+    value: "095959",
   });
 
-  const [stopLoss, setStopLoss] = useState(40);
+  let trailingStopLoss = -1000;
+  let fixedTrailingStopLoss = 1000;
+
+  const [stopLoss, setStopLoss] = useState(60);
 
   const skipSeconds = 1;
 
@@ -49,7 +52,7 @@ const HistoricOptionShort = () => {
 
   const captialAmount = 50000;
   const brokerage = 60;
-  const qty = 50;
+  const qty = 100;
   const bufferValue = 1;
   const secondStopLoss = 1;
 
@@ -97,12 +100,12 @@ const HistoricOptionShort = () => {
       let eDate = parseInt("" + selectDate.value + "151959");
       let strike = roundNum50(niftyValue.last_price);
       let tmpCeValue = {
-        label: "NIFTYWK" + strike + "CE",
-        value: "NIFTYWK" + strike + "CE",
+        label: "NIFTYWK" + (strike + 100) + "CE",
+        value: "NIFTYWK" + (strike + 100) + "CE",
       };
       let tmpPeVale = {
-        label: "NIFTYWK" + strike + "PE",
-        value: "NIFTYWK" + strike + "PE",
+        label: "NIFTYWK" + (strike - 100) + "PE",
+        value: "NIFTYWK" + (strike - 100) + "PE",
       };
       setCeValue(tmpCeValue);
       setPeValue(tmpPeVale);
@@ -156,11 +159,16 @@ const HistoricOptionShort = () => {
 
   const checkAndSetStopLoss = () => {
     let propKey = parseInt("" + selectDate.value + candleTime.value);
-    let ceStockClose = completeData.find(
-      (e) => e[ceValue.value].timeStamp === propKey
+    let ceStockClose = 0;
+    let peStockClose = 0;
+    // completeData.forEach((e) => {
+    //   if()
+    // });
+    ceStockClose = completeData.find(
+      (e) => e[ceValue.value] && e[ceValue.value].timeStamp === propKey
     )[ceValue.value].last_price;
-    let peStockClose = completeData.find(
-      (e) => e[peValue.value].timeStamp === propKey
+    peStockClose = completeData.find(
+      (e) => e[peValue.value] && e[peValue.value].timeStamp === propKey
     )[peValue.value].last_price;
 
     let tmpBufferCeStockClose =
@@ -177,9 +185,11 @@ const HistoricOptionShort = () => {
 
     // let slPeStockTriggerPrice =
     //   (tmpBufferPeStockClose + (stopLoss * tmpBufferPeStockClose) / 100) * 50;
-    let slCeStockTriggerPrice = ((stopLoss * tmpBufferCeStockClose) / 100) * 50;
+    let slCeStockTriggerPrice =
+      ((stopLoss * tmpBufferCeStockClose) / 100) * qty;
 
-    let slPeStockTriggerPrice = ((stopLoss * tmpBufferPeStockClose) / 100) * 50;
+    let slPeStockTriggerPrice =
+      ((stopLoss * tmpBufferPeStockClose) / 100) * qty;
     let tJson = {
       ceValue: ceStockClose,
       peValue: peStockClose,
@@ -223,22 +233,22 @@ const HistoricOptionShort = () => {
     let propKey = parseInt("" + selectDate.value + candleTime.value);
 
     let ceStockClose = completeData.find(
-      (e) => e[ceValue.value].timeStamp === propKey
+      (e) => e[ceValue.value] && e[ceValue.value].timeStamp === propKey
     )[ceValue.value].last_price;
     let peStockClose = completeData.find(
-      (e) => e[peValue.value].timeStamp === propKey
+      (e) => e[peValue.value] && e[peValue.value].timeStamp === propKey
     )[peValue.value].last_price;
 
-    let tempReferenceValue = ceStockClose * 50 + peStockClose * 50;
+    let tempReferenceValue = ceStockClose * qty + peStockClose * qty;
 
     let bufferCeStockClose =
-      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50;
+      (ceStockClose - (ceStockClose * bufferValue) / 100) * qty;
     let bufferPeStockClose =
-      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
+      (peStockClose - (peStockClose * bufferValue) / 100) * qty;
 
     let bufferTempReferenceValue =
-      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50 +
-      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
+      (ceStockClose - (ceStockClose * bufferValue) / 100) * qty +
+      (peStockClose - (peStockClose * bufferValue) / 100) * qty;
 
     // console.log("originalReferenceValue ", tempReferenceValue);
     // console.log("bufferCeStockClose ", bufferCeStockClose);
@@ -261,8 +271,8 @@ const HistoricOptionShort = () => {
         let highStockCeValueCheck = completeData[i][ceValue.value].last_price;
         let highStockPeValueCheck = completeData[i][peValue.value].last_price;
 
-        let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * 50;
-        let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * 50;
+        let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * qty;
+        let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * qty;
         if (!ceSlTrigger.isTrigger && tmpCeValueChange < ceSlTrigger.value) {
           ceSlTrigger.isTrigger = true;
           ceSlTrigger.value = twoDigitDecimal(tmpCeValueChange);
@@ -287,17 +297,30 @@ const HistoricOptionShort = () => {
         tmpPeValueChange = peSlTrigger.isTrigger
           ? peSlTrigger.value
           : Number(parseFloat(tmpPeValueChange.toString()).toFixed(2));
+        let totValue = Number(
+          parseFloat((tmpCeValueChange + tmpPeValueChange).toString()).toFixed(
+            2
+          )
+        );
+        let calculateTrailingStopLoss = totValue - fixedTrailingStopLoss;
+        let tmpStopLoss = trailingStopLoss;
+        if (calculateTrailingStopLoss > trailingStopLoss) {
+          trailingStopLoss = calculateTrailingStopLoss;
+          tmpStopLoss = calculateTrailingStopLoss;
+        }
+        let isStopLossHit = "";
+        if (totValue < tmpStopLoss) {
+          isStopLossHit = "YES";
+        }
         let tmpJson = {
           dateValue: completeData[i][ceValue.value].timeStamp,
           ceOptionValue: highStockCeValueCheck,
           peOptionValue: highStockPeValueCheck,
           ceValueChange: tmpCeValueChange,
           peValueChange: tmpPeValueChange,
-          totalValue: Number(
-            parseFloat(
-              (tmpCeValueChange + tmpPeValueChange).toString()
-            ).toFixed(2)
-          ),
+          totalValue: totValue,
+          tStopLoss: Number(parseFloat(tmpStopLoss.toString()).toFixed(2)),
+          isStopLossHit,
         };
         finalArr.push(tmpJson);
       }
@@ -423,14 +446,14 @@ const HistoricOptionShort = () => {
         <Col md={3}>Day End Value : {dayEndValue}</Col>
       </Row>
       <br />
-      {/* <Row className="mt-3 pt-3 pl-1 ml-1">
+      <Row className="mt-3 pt-3 pl-1 ml-1">
         <Col md={2}>CE Entry Value : {ref.ceValue}</Col>
         <Col md={2}>PE Entry Value : {ref.peValue}</Col>
         <Col md={2}>CE Buffer Value : {ref.ceEntryBufferValue}</Col>
         <Col md={2}>PE Buffer Value : {ref.peEntryBufferValue}</Col>
         <Col md={2}>CE Stop Loss Value : {ref.ceStopLoss}</Col>
         <Col md={2}>PE Stop Loss Value : {ref.peStopLoss}</Col>
-      </Row> */}
+      </Row>
       <br />
 
       <Row>
@@ -462,6 +485,12 @@ const HistoricOptionShort = () => {
         <Col md={1}>
           <b>Gross Total</b>
         </Col>
+        <Col md={1}>
+          <b>Stop Loss</b>
+        </Col>
+        <Col md={1}>
+          <b>Stop Loss Hit</b>
+        </Col>
       </Row>
       {finalResult.map((result, index) => (
         <Row className="ml-1" key={index}>
@@ -473,6 +502,8 @@ const HistoricOptionShort = () => {
           <Col md={2}>{result.ceValueChange}</Col>
           <Col md={2}>{result.peValueChange}</Col>
           <Col md={1}>{result.totalValue}</Col>
+          <Col md={1}>{result.tStopLoss}</Col>
+          <Col md={1}>{result.isStopLossHit}</Col>
         </Row>
       ))}
     </React.Fragment>

@@ -262,7 +262,15 @@ export const optionData = [
   { label: "NIFTYWK20000CE", value: "NIFTYWK20000CE" },
 ];
 
-export const optionsDate = [{ label: 20230130, value: 20230130 }];
+export const optionsDate = [
+  { label: 20230130, value: 20230130 },
+  { label: 20230203, value: 20230203 },
+  { label: 2023113, value: 2023113 },
+  { label: 2023112, value: 2023112 },
+  { label: 2023111, value: 2023111 },
+  { label: 20230131, value: 20230131 },
+  { label: 2023116, value: 2023116 },
+];
 
 // export const optionsDate = [
 //   { label: 20211029, value: 20211029 },
