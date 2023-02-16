@@ -6,22 +6,19 @@ import { serviceURL } from "../../serviceURL";
 import axios from "axios";
 import { candleTimeData } from "../../constants/stockDate";
 
-const HistoricOptionShort = () => {
+const OneMinHistoricOptionShort = () => {
   ///////////////////////////////////////
   //////////////////////////////////////////
   ///////////////////////////////////////////////
 
-  const [candleTime, setCandleTime] = useState({
-    label: "091559",
-    value: "091559",
-  });
+  const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
 
-  let trailingStopLoss = -1000;
-  let fixedTrailingStopLoss = 1000;
+  const [stopLoss, setStopLoss] = useState(40);
 
-  const [stopLoss, setStopLoss] = useState(60);
+  const skipMinutes = 1;
 
-  const skipSeconds = 1;
+  let trailingStopLoss = -4000;
+  let fixedTrailingStopLoss = 4000;
 
   //////////////////////////////////////////
   /////////////////////////////////////////////
@@ -52,7 +49,7 @@ const HistoricOptionShort = () => {
 
   const captialAmount = 50000;
   const brokerage = 60;
-  const qty = 100;
+  const qty = 50;
   const bufferValue = 1;
   const secondStopLoss = 1;
 
@@ -62,27 +59,27 @@ const HistoricOptionShort = () => {
 
   useEffect(() => {
     if (selectDate) {
-      let tmpDate = candleTime.value;
-      // if (candleTime.value === 2) {
-      //   tmpDate = "091659";
-      // } else if (candleTime.value === 3) {
-      //   tmpDate = "091759";
-      // } else if (candleTime.value === 5) {
-      //   tmpDate = "091959";
-      // } else if (candleTime.value === 8) {
-      //   tmpDate = "092259";
-      // } else if (candleTime.value === 10) {
-      //   tmpDate = "092459";
-      // } else if (candleTime.value === 15) {
-      //   tmpDate = "092959";
-      // } else if (candleTime.value === 30) {
-      //   tmpDate = "094459";
-      // } else if (candleTime.value === 45) {
-      //   tmpDate = "095959";
-      // }
+      let tmpDate = "0915";
+      if (candleTime.value === 2) {
+        tmpDate = "0916";
+      } else if (candleTime.value === 3) {
+        tmpDate = "0917";
+      } else if (candleTime.value === 5) {
+        tmpDate = "0919";
+      } else if (candleTime.value === 8) {
+        tmpDate = "0922";
+      } else if (candleTime.value === 10) {
+        tmpDate = "0924";
+      } else if (candleTime.value === 15) {
+        tmpDate = "0929";
+      } else if (candleTime.value === 30) {
+        tmpDate = "0944";
+      } else if (candleTime.value === 45) {
+        tmpDate = "0959";
+      }
       let date = "" + selectDate.value + tmpDate;
       axios
-        .get(serviceURL + "/fetchCurrentHistoricNiftyValue/" + parseInt(date))
+        .get(serviceURL + "/fetchCurrentNiftyValue/" + parseInt(date))
         .then((response) => {
           console.log(date);
           if (response) {
@@ -95,10 +92,10 @@ const HistoricOptionShort = () => {
   }, [selectDate]);
 
   useEffect(() => {
-    if (niftyValue && niftyValue.last_price) {
-      let sDate = parseInt("" + selectDate.value + "091500");
-      let eDate = parseInt("" + selectDate.value + "151959");
-      let strike = roundNum50(niftyValue.last_price);
+    if (niftyValue && niftyValue.stockClose) {
+      let sDate = parseInt("" + selectDate.value + "0915");
+      let eDate = parseInt("" + selectDate.value + "1510");
+      let strike = roundNum50(niftyValue.stockClose);
       let tmpCeValue = {
         label: "NIFTYWK" + strike + "CE",
         value: "NIFTYWK" + strike + "CE",
@@ -113,7 +110,7 @@ const HistoricOptionShort = () => {
       axios
         .get(
           serviceURL +
-            "/fetchHistoricOptionsByDate/" +
+            "/fetchOptionsByDate/" +
             sDate +
             "/" +
             eDate +
@@ -137,8 +134,8 @@ const HistoricOptionShort = () => {
               if (i >= candleTime.value) {
                 if (
                   e[tmpCeValue.value] &&
-                  e[tmpCeValue.value].timeStamp &&
-                  e[tmpCeValue.value].timeStamp % skipSeconds === 0
+                  e[tmpCeValue.value].stockDate &&
+                  e[tmpCeValue.value].stockDate % skipMinutes === 0
                 ) {
                   finalTData.push(e);
                 }
@@ -147,6 +144,7 @@ const HistoricOptionShort = () => {
               }
               i++;
             });
+            // console.log(finalTData);
             //////////
 
             setCompleteData(finalTData);
@@ -158,18 +156,10 @@ const HistoricOptionShort = () => {
   }, [niftyValue]);
 
   const checkAndSetStopLoss = () => {
-    let propKey = parseInt("" + selectDate.value + candleTime.value);
-    let ceStockClose = 0;
-    let peStockClose = 0;
-    // completeData.forEach((e) => {
-    //   if()
-    // });
-    ceStockClose = completeData.find(
-      (e) => e[ceValue.value] && e[ceValue.value].timeStamp === propKey
-    )[ceValue.value].last_price;
-    peStockClose = completeData.find(
-      (e) => e[peValue.value] && e[peValue.value].timeStamp === propKey
-    )[peValue.value].last_price;
+    let ceStockClose =
+      completeData[candleTime.value - 1][ceValue.value].stockClose;
+    let peStockClose =
+      completeData[candleTime.value - 1][peValue.value].stockClose;
 
     let tmpBufferCeStockClose =
       ceStockClose - (ceStockClose * bufferValue) / 100;
@@ -185,21 +175,17 @@ const HistoricOptionShort = () => {
 
     // let slPeStockTriggerPrice =
     //   (tmpBufferPeStockClose + (stopLoss * tmpBufferPeStockClose) / 100) * 50;
-    let slCeStockTriggerPrice =
-      ((stopLoss * tmpBufferCeStockClose) / 100) * qty;
+    let slCeStockTriggerPrice = ((stopLoss * tmpBufferCeStockClose) / 100) * 50;
 
-    let slPeStockTriggerPrice =
-      ((stopLoss * tmpBufferPeStockClose) / 100) * qty;
-    let tJson = {
+    let slPeStockTriggerPrice = ((stopLoss * tmpBufferPeStockClose) / 100) * 50;
+    setRef({
       ceValue: ceStockClose,
       peValue: peStockClose,
       ceEntryBufferValue: ceStockClose - (ceStockClose * bufferValue) / 100,
       peEntryBufferValue: peStockClose - (peStockClose * bufferValue) / 100,
       ceStopLoss: twoDigitDecimal(-slCeStockTriggerPrice),
       peStopLoss: twoDigitDecimal(-slPeStockTriggerPrice),
-    };
-
-    setRef(tJson);
+    });
 
     ceSlTrigger.value = twoDigitDecimal(-slCeStockTriggerPrice);
     peSlTrigger.value = twoDigitDecimal(-slPeStockTriggerPrice);
@@ -222,7 +208,7 @@ const HistoricOptionShort = () => {
       const timer = setTimeout(() => {
         calculateValue(tDayEndMax);
         console.log("This will run after 3 second!");
-      }, 3000);
+      }, 10);
     }
   }, [completeData]);
 
@@ -230,36 +216,30 @@ const HistoricOptionShort = () => {
     // e.preventDefault();
     setFinalResult([]);
     let finalArr = [];
-    let propKey = parseInt("" + selectDate.value + candleTime.value);
-
-    let ceStockClose = completeData.find(
-      (e) => e[ceValue.value] && e[ceValue.value].timeStamp === propKey
-    )[ceValue.value].last_price;
-    let peStockClose = completeData.find(
-      (e) => e[peValue.value] && e[peValue.value].timeStamp === propKey
-    )[peValue.value].last_price;
-
-    let tempReferenceValue = ceStockClose * qty + peStockClose * qty;
+    let ceStockClose =
+      completeData[candleTime.value - 1][ceValue.value].stockClose;
+    let peStockClose =
+      completeData[candleTime.value - 1][peValue.value].stockClose;
+    let tempReferenceValue = ceStockClose * 50 + peStockClose * 50;
 
     let bufferCeStockClose =
-      (ceStockClose - (ceStockClose * bufferValue) / 100) * qty;
+      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50;
     let bufferPeStockClose =
-      (peStockClose - (peStockClose * bufferValue) / 100) * qty;
+      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
 
     let bufferTempReferenceValue =
-      (ceStockClose - (ceStockClose * bufferValue) / 100) * qty +
-      (peStockClose - (peStockClose * bufferValue) / 100) * qty;
+      (ceStockClose - (ceStockClose * bufferValue) / 100) * 50 +
+      (peStockClose - (peStockClose * bufferValue) / 100) * 50;
 
     // console.log("originalReferenceValue ", tempReferenceValue);
     // console.log("bufferCeStockClose ", bufferCeStockClose);
     // console.log("bufferPeStockClose ", bufferPeStockClose);
     setReference(bufferTempReferenceValue);
-
+    let tSlValue = 0;
+    let tCount = 0;
     for (let i = 0; i < completeData.length; i++) {
       if (
-        completeData[i][ceValue.value] &&
-        completeData[i][peValue.value] &&
-        propKey <= completeData[i][ceValue.value].timeStamp &&
+        i >= candleTime.value &&
         completeData[i][ceValue.value] &&
         completeData[i][peValue.value]
       ) {
@@ -268,11 +248,11 @@ const HistoricOptionShort = () => {
         //   (completeData[i][ceValue.value].stockClose * 50 +
         //     completeData[i][peValue.value].stockClose * 50);
         // console.log(completeData[i][ceValue.value].stockDate);
-        let highStockCeValueCheck = completeData[i][ceValue.value].last_price;
-        let highStockPeValueCheck = completeData[i][peValue.value].last_price;
+        let highStockCeValueCheck = completeData[i][ceValue.value].stockClose;
+        let highStockPeValueCheck = completeData[i][peValue.value].stockClose;
 
-        let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * qty;
-        let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * qty;
+        let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * 50;
+        let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * 50;
         if (!ceSlTrigger.isTrigger && tmpCeValueChange < ceSlTrigger.value) {
           ceSlTrigger.isTrigger = true;
           ceSlTrigger.value = twoDigitDecimal(tmpCeValueChange);
@@ -297,23 +277,34 @@ const HistoricOptionShort = () => {
         tmpPeValueChange = peSlTrigger.isTrigger
           ? peSlTrigger.value
           : Number(parseFloat(tmpPeValueChange.toString()).toFixed(2));
+
         let totValue = Number(
           parseFloat((tmpCeValueChange + tmpPeValueChange).toString()).toFixed(
             2
           )
         );
+
         let calculateTrailingStopLoss = totValue - fixedTrailingStopLoss;
+
         let tmpStopLoss = trailingStopLoss;
         if (calculateTrailingStopLoss > trailingStopLoss) {
           trailingStopLoss = calculateTrailingStopLoss;
           tmpStopLoss = calculateTrailingStopLoss;
         }
         let isStopLossHit = "";
+
         if (totValue < tmpStopLoss) {
           isStopLossHit = "YES";
+          tCount++;
         }
+        if (tCount === 1 && isStopLossHit === "YES") {
+          tSlValue = totValue;
+        } else if (tCount < 1) {
+          tSlValue = totValue;
+        }
+
         let tmpJson = {
-          dateValue: completeData[i][ceValue.value].timeStamp,
+          dateValue: completeData[i][ceValue.value].stockDate,
           ceOptionValue: highStockCeValueCheck,
           peOptionValue: highStockPeValueCheck,
           ceValueChange: tmpCeValueChange,
@@ -326,10 +317,10 @@ const HistoricOptionShort = () => {
       }
     }
     let closeArr = [];
+
     finalArr.forEach((arr) => {
       closeArr.push(arr.totalValue);
     });
-    console.log(finalArr);
     let tmpMinValue = Math.min(...closeArr);
     let tmpMaxValue = Math.max(...closeArr);
     let tmpDayEndValue = closeArr[closeArr.length - 1];
@@ -347,6 +338,8 @@ const HistoricOptionShort = () => {
       tmpMaxValue +
       "," +
       tmpDayEndValue +
+      "," +
+      tSlValue +
       ";\r\n";
     axios
       .get(serviceURL + "/writeInCsv/" + finalConcatValue)
@@ -427,10 +420,10 @@ const HistoricOptionShort = () => {
           />
         </Col>
         <Col md={2} className="mt-3 pt-3">
-          Nifty Value : {niftyValue && niftyValue.last_price}
+          Nifty Value : {niftyValue && niftyValue.stockClose}
         </Col>
         <Col md={2} className="mt-3 pt-3">
-          Round off Value : {niftyValue && roundNum50(niftyValue.last_price)}
+          Round off Value : {niftyValue && roundNum50(niftyValue.stockClose)}
         </Col>
       </Row>
       <br />
@@ -470,12 +463,12 @@ const HistoricOptionShort = () => {
         </Col>
 
         <Col md={1}>
-          <b>CE Entry</b>
+          <b>CE Value</b>
         </Col>
         <Col md={1}>
-          <b>PE Entry</b>
+          <b>PE Value</b>
         </Col>
-
+        <Col md={1}></Col>
         <Col md={2}>
           <b>CE Value Change</b>
         </Col>
@@ -498,7 +491,7 @@ const HistoricOptionShort = () => {
 
           <Col md={1}>{result.ceOptionValue}</Col>
           <Col md={1}>{result.peOptionValue}</Col>
-
+          <Col md={1}></Col>
           <Col md={2}>{result.ceValueChange}</Col>
           <Col md={2}>{result.peValueChange}</Col>
           <Col md={1}>{result.totalValue}</Col>
@@ -510,4 +503,4 @@ const HistoricOptionShort = () => {
   );
 };
 
-export default HistoricOptionShort;
+export default OneMinHistoricOptionShort;

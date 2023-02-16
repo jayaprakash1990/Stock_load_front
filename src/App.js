@@ -19,6 +19,7 @@ import SpreadStockReverse from "./component/spreadStock/SpreadStockReverse";
 import OptionSpreadLong from "./component/optionSpread/OptionSpreadLong";
 import OptionSpreadShort from "./component/optionSpread/OptionSpreadShort";
 import HistoricOptionShort from "./component/historicOptionShort/HistoricOptionShort";
+import oneMinHistoricOptionShort from "./component/historicOptionShort/oneMinHistoricOptionShort";
 
 function App() {
   return (
@@ -46,12 +47,17 @@ function App() {
           {/* <div className="px-4">
             <NavLink to="/spreadStockReverse">Spread Stock Reverse</NavLink>
           </div> */}
-          <div className="px-4">
+          {/* <div className="px-4">
             <NavLink to="/optionSpreadLong">Spread Option Long</NavLink>
           </div>
-          {/* <div className="px-4">
+          <div className="px-4">
             <NavLink to="/optionSpreadShort">Spread Option Short</NavLink>
           </div> */}
+          <div className="px-4">
+            <NavLink to="/oneMinHistoricOptionShort">
+              One Min Historic Option Short
+            </NavLink>
+          </div>
           <div className="px-4">
             <NavLink to="/historicOptionShort">Historic Option Short</NavLink>
           </div>
@@ -73,6 +79,12 @@ function App() {
           />
           <Route exact path="/checkOiVolume" component={CheckOiVolume} />
           <Route exact path="/optionSpreadLong" component={OptionSpreadLong} />
+
+          <Route
+            exact
+            path="/oneMinHistoricOptionShort"
+            component={oneMinHistoricOptionShort}
+          />
           <Route
             exact
             path="/historicOptionShort"
