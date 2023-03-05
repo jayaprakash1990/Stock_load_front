@@ -20,6 +20,7 @@ import OptionSpreadLong from "./component/optionSpread/OptionSpreadLong";
 import OptionSpreadShort from "./component/optionSpread/OptionSpreadShort";
 import HistoricOptionShort from "./component/historicOptionShort/HistoricOptionShort";
 import oneMinHistoricOptionShort from "./component/historicOptionShort/oneMinHistoricOptionShort";
+import OptionWithValueSeconds from "./component/historitcOptionTicksBackTest/OptionWithValueSeconds";
 
 function App() {
   return (
@@ -38,12 +39,12 @@ function App() {
           {/* <div className="px-4">
             <NavLink to="/checkHighReversal">CheckHighReversal</NavLink>
           </div> */}
-          <div className="px-4">
+          {/* <div className="px-4">
             <NavLink to="/spreadStock">Spread Stock</NavLink>
-          </div>
-          <div className="px-4">
+          </div> */}
+          {/* <div className="px-4">
             <NavLink to="/checkOiVolume">Check Oi Volume</NavLink>
-          </div>
+          </div> */}
           {/* <div className="px-4">
             <NavLink to="/spreadStockReverse">Spread Stock Reverse</NavLink>
           </div> */}
@@ -53,13 +54,17 @@ function App() {
           <div className="px-4">
             <NavLink to="/optionSpreadShort">Spread Option Short</NavLink>
           </div> */}
-          <div className="px-4">
+          {/* <div className="px-4">
             <NavLink to="/oneMinHistoricOptionShort">
               One Min Historic Option Short
             </NavLink>
-          </div>
-          <div className="px-4">
+          </div> */}
+          {/* <div className="px-4">
             <NavLink to="/historicOptionShort">Historic Option Short</NavLink>
+          </div>
+        </div> */}
+          <div className="px-4">
+            <NavLink to="/optionWithValueSeconds">S - Opt with values</NavLink>
           </div>
         </div>
         <Switch>
@@ -94,6 +99,11 @@ function App() {
             exact
             path="/optionSpreadShort"
             component={OptionSpreadShort}
+          />
+          <Route
+            exact
+            path="/optionWithValueSeconds"
+            component={OptionWithValueSeconds}
           />
         </Switch>
       </div>
