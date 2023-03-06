@@ -21,6 +21,7 @@ import OptionSpreadShort from "./component/optionSpread/OptionSpreadShort";
 import HistoricOptionShort from "./component/historicOptionShort/HistoricOptionShort";
 import oneMinHistoricOptionShort from "./component/historicOptionShort/oneMinHistoricOptionShort";
 import OptionWithValueSeconds from "./component/historitcOptionTicksBackTest/OptionWithValueSeconds";
+import OptionSpreadShortSingleStopLossTrail from "./component/historitcOptionTicksBackTest/OptionSpreadShortSingleStopLossTrail";
 
 function App() {
   return (
@@ -50,10 +51,10 @@ function App() {
           </div> */}
           {/* <div className="px-4">
             <NavLink to="/optionSpreadLong">Spread Option Long</NavLink>
-          </div>
+          </div>*/}
           <div className="px-4">
             <NavLink to="/optionSpreadShort">Spread Option Short</NavLink>
-          </div> */}
+          </div>
           {/* <div className="px-4">
             <NavLink to="/oneMinHistoricOptionShort">
               One Min Historic Option Short
@@ -65,6 +66,11 @@ function App() {
         </div> */}
           <div className="px-4">
             <NavLink to="/optionWithValueSeconds">S - Opt with values</NavLink>
+          </div>
+          <div className="px-4">
+            <NavLink to="/optionOneMinStopLossTrail">
+              S - Opt one Min StopLoss
+            </NavLink>
           </div>
         </div>
         <Switch>
@@ -104,6 +110,11 @@ function App() {
             exact
             path="/optionWithValueSeconds"
             component={OptionWithValueSeconds}
+          />
+          <Route
+            exact
+            path="/optionOneMinStopLossTrail"
+            component={OptionSpreadShortSingleStopLossTrail}
           />
         </Switch>
       </div>

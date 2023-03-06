@@ -6,14 +6,14 @@ import { serviceURL } from "../../serviceURL";
 import axios from "axios";
 import { candleTimeData } from "../../constants/stockDate";
 
-const OptionSpreadShort = () => {
+const OptionSpreadShortSingleStopLossTrail = () => {
   ///////////////////////////////////////
   //////////////////////////////////////////
   ///////////////////////////////////////////////
 
   const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
 
-  const [stopLoss, setStopLoss] = useState(40);
+  const [stopLoss, setStopLoss] = useState(20);
 
   const skipMinutes = 1;
 
@@ -210,6 +210,7 @@ const OptionSpreadShort = () => {
   }, [completeData]);
 
   const calculateValue = (tDayEndMax) => {
+    console.log(ceSlTrigger, peSlTrigger);
     // e.preventDefault();
     setFinalResult([]);
     let finalArr = [];
@@ -249,6 +250,28 @@ const OptionSpreadShort = () => {
 
         let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * 50;
         let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * 50;
+        ////check for the stop loss+
+        if (!ceSlTrigger.isTrigger) {
+          let tmpNewCeSlValue = twoDigitDecimal(
+            ((highStockCeValueCheck * stopLoss) / 100) * 50
+          );
+          if (ceSlTrigger.value < -tmpNewCeSlValue) {
+            ceSlTrigger.value = -tmpNewCeSlValue;
+          }
+        }
+        if (!peSlTrigger.isTrigger) {
+          let tmpNewPeSlValue = twoDigitDecimal(
+            ((highStockPeValueCheck * stopLoss) / 100) * 50
+          );
+
+          if (peSlTrigger.value < -tmpNewPeSlValue) {
+            peSlTrigger.value = -tmpNewPeSlValue;
+          }
+        }
+
+        let tmpBufferPeStockClose =
+          peStockClose - (peStockClose * bufferValue) / 100;
+
         if (!ceSlTrigger.isTrigger && tmpCeValueChange < ceSlTrigger.value) {
           ceSlTrigger.isTrigger = true;
           ceSlTrigger.value = twoDigitDecimal(tmpCeValueChange);
@@ -284,6 +307,8 @@ const OptionSpreadShort = () => {
               (tmpCeValueChange + tmpPeValueChange).toString()
             ).toFixed(2)
           ),
+          ceSlNewValue: ceSlTrigger.value,
+          peSlNewValue: peSlTrigger.value,
         };
         finalArr.push(tmpJson);
       }
@@ -321,7 +346,7 @@ const OptionSpreadShort = () => {
 
           //TODO: Date needs to comment to check
 
-          // setSelectDate(optionsDate[index + 1]);
+          setSelectDate(optionsDate[index + 1]);
 
           // console.log(index);
           // alert(response.data.result);
@@ -437,7 +462,12 @@ const OptionSpreadShort = () => {
         <Col md={1}>
           <b>PE Value</b>
         </Col>
-        <Col md={1}></Col>
+        <Col md={1}>
+          <b>CE SL</b>
+        </Col>
+        <Col md={1}>
+          <b>PE SL</b>
+        </Col>
         <Col md={2}>
           <b>CE Value Change</b>
         </Col>
@@ -454,7 +484,8 @@ const OptionSpreadShort = () => {
 
           <Col md={1}>{result.ceOptionValue}</Col>
           <Col md={1}>{result.peOptionValue}</Col>
-          <Col md={1}></Col>
+          <Col md={1}>{result.ceSlNewValue}</Col>
+          <Col md={1}>{result.peSlNewValue}</Col>
           <Col md={2}>{result.ceValueChange}</Col>
           <Col md={2}>{result.peValueChange}</Col>
           <Col md={1}>{result.totalValue}</Col>
@@ -464,4 +495,4 @@ const OptionSpreadShort = () => {
   );
 };
 
-export default OptionSpreadShort;
+export default OptionSpreadShortSingleStopLossTrail;
