@@ -60,18 +60,18 @@ function App() {
               One Min Historic Option Short
             </NavLink>
           </div> */}
-          {/* <div className="px-4">
+          <div className="px-4">
             <NavLink to="/historicOptionShort">Historic Option Short</NavLink>
           </div>
-        </div> */}
-          <div className="px-4">
+          {/* </div> */}
+          {/* <div className="px-4">
             <NavLink to="/optionWithValueSeconds">S - Opt with values</NavLink>
-          </div>
-          <div className="px-4">
+          </div> */}
+          {/* <div className="px-4">
             <NavLink to="/optionOneMinStopLossTrail">
               S - Opt one Min StopLoss
             </NavLink>
-          </div>
+          </div> */}
         </div>
         <Switch>
           <Route exact path="/" component={Home} />
