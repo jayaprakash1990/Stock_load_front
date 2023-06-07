@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import Select from "react-select";
-import { optionData, optionsDate } from "../../optionDate";
+import { optionData } from "../../optionDate";
 import { serviceURL } from "../../serviceURL";
 import axios from "axios";
 import { candleTimeData } from "../../constants/stockDate";
@@ -11,6 +11,8 @@ const HistoricOptionShort = () => {
   //////////////////////////////////////////
   ///////////////////////////////////////////////
 
+  const optionsDate = [{ label: 20232122, value: 20232122 }];
+
   const [candleTime, setCandleTime] = useState({
     label: "091559",
     value: "091559",
@@ -19,7 +21,7 @@ const HistoricOptionShort = () => {
   let trailingStopLoss = -1000;
   let fixedTrailingStopLoss = 1000;
 
-  const [stopLoss, setStopLoss] = useState(60);
+  const [stopLoss, setStopLoss] = useState(40);
 
   const skipSeconds = 1;
 
@@ -52,7 +54,7 @@ const HistoricOptionShort = () => {
 
   const captialAmount = 50000;
   const brokerage = 60;
-  const qty = 100;
+  const qty = 50;
   const bufferValue = 1;
   const secondStopLoss = 1;
 
@@ -97,7 +99,7 @@ const HistoricOptionShort = () => {
   useEffect(() => {
     if (niftyValue && niftyValue.last_price) {
       let sDate = parseInt("" + selectDate.value + "091500");
-      let eDate = parseInt("" + selectDate.value + "151959");
+      let eDate = parseInt("" + selectDate.value + "151002");
       let strike = roundNum50(niftyValue.last_price);
       let tmpCeValue = {
         label: "NIFTYWK" + strike + "CE",
@@ -260,8 +262,7 @@ const HistoricOptionShort = () => {
         completeData[i][ceValue.value] &&
         completeData[i][peValue.value] &&
         propKey <= completeData[i][ceValue.value].timeStamp &&
-        completeData[i][ceValue.value] &&
-        completeData[i][peValue.value]
+        completeData[i][ceValue.value].timeStamp % 100 === 59
       ) {
         // let totalCalculateValue =
         //   bufferTempReferenceValue -
@@ -302,16 +303,16 @@ const HistoricOptionShort = () => {
             2
           )
         );
-        let calculateTrailingStopLoss = totValue - fixedTrailingStopLoss;
-        let tmpStopLoss = trailingStopLoss;
-        if (calculateTrailingStopLoss > trailingStopLoss) {
-          trailingStopLoss = calculateTrailingStopLoss;
-          tmpStopLoss = calculateTrailingStopLoss;
-        }
-        let isStopLossHit = "";
-        if (totValue < tmpStopLoss) {
-          isStopLossHit = "YES";
-        }
+        // let calculateTrailingStopLoss = totValue - fixedTrailingStopLoss;
+        // let tmpStopLoss = trailingStopLoss;
+        // if (calculateTrailingStopLoss > trailingStopLoss) {
+        //   trailingStopLoss = calculateTrailingStopLoss;
+        //   tmpStopLoss = calculateTrailingStopLoss;
+        // }
+        // let isStopLossHit = "";
+        // if (totValue < tmpStopLoss) {
+        //   isStopLossHit = "YES";
+        // }
         let tmpJson = {
           dateValue: completeData[i][ceValue.value].timeStamp,
           ceOptionValue: highStockCeValueCheck,
@@ -319,8 +320,8 @@ const HistoricOptionShort = () => {
           ceValueChange: tmpCeValueChange,
           peValueChange: tmpPeValueChange,
           totalValue: totValue,
-          tStopLoss: Number(parseFloat(tmpStopLoss.toString()).toFixed(2)),
-          isStopLossHit,
+          // tStopLoss: Number(parseFloat(tmpStopLoss.toString()).toFixed(2)),
+          // isStopLossHit,
         };
         finalArr.push(tmpJson);
       }
@@ -485,12 +486,12 @@ const HistoricOptionShort = () => {
         <Col md={1}>
           <b>Gross Total</b>
         </Col>
-        <Col md={1}>
+        {/* <Col md={1}>
           <b>Stop Loss</b>
         </Col>
         <Col md={1}>
           <b>Stop Loss Hit</b>
-        </Col>
+        </Col> */}
       </Row>
       {finalResult.map((result, index) => (
         <Row className="ml-1" key={index}>
@@ -502,8 +503,8 @@ const HistoricOptionShort = () => {
           <Col md={2}>{result.ceValueChange}</Col>
           <Col md={2}>{result.peValueChange}</Col>
           <Col md={1}>{result.totalValue}</Col>
-          <Col md={1}>{result.tStopLoss}</Col>
-          <Col md={1}>{result.isStopLossHit}</Col>
+          {/* <Col md={1}>{result.tStopLoss}</Col>
+          <Col md={1}>{result.isStopLossHit}</Col> */}
         </Row>
       ))}
     </React.Fragment>

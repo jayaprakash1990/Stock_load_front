@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import Select from "react-select";
-import { optionData, optionsDate } from "../../optionDate";
+import { optionData } from "../../optionDate";
 import { serviceURL } from "../../serviceURL";
 import axios from "axios";
 import { candleTimeData } from "../../constants/stockDate";
@@ -11,14 +11,16 @@ const OneMinHistoricOptionShort = () => {
   //////////////////////////////////////////
   ///////////////////////////////////////////////
 
+  const optionsDate = [{ label: 20232110, value: 20232110 }];
+
   const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
 
   const [stopLoss, setStopLoss] = useState(40);
 
   const skipMinutes = 1;
 
-  let trailingStopLoss = -4000;
-  let fixedTrailingStopLoss = 4000;
+  let trailingStopLoss = -8000;
+  let fixedTrailingStopLoss = 8000;
 
   //////////////////////////////////////////
   /////////////////////////////////////////////
@@ -121,6 +123,7 @@ const OneMinHistoricOptionShort = () => {
         )
         .then((response) => {
           // console.log('*******************88');
+          console.log(response);
           if (response) {
             let tmpJsonResult = response.data;
             setJsonResult(tmpJsonResult);

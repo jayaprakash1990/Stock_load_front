@@ -13,7 +13,7 @@ const OptionSpreadShortSingleStopLossTrail = () => {
 
   const [candleTime, setCandleTime] = useState({ label: 1, value: 1 });
 
-  const [stopLoss, setStopLoss] = useState(20);
+  const [stopLoss, setStopLoss] = useState(40);
 
   const skipMinutes = 1;
 
@@ -238,7 +238,9 @@ const OptionSpreadShortSingleStopLossTrail = () => {
       if (
         i >= candleTime.value &&
         completeData[i][ceValue.value] &&
-        completeData[i][peValue.value]
+        completeData[i][peValue.value] &&
+        completeData[i][ceValue.value].stockDate % 10000 > 930
+        // completeData[i][ceValue.value].stockDate % 10000 < 1430
       ) {
         // let totalCalculateValue =
         //   bufferTempReferenceValue -
@@ -251,23 +253,23 @@ const OptionSpreadShortSingleStopLossTrail = () => {
         let tmpCeValueChange = bufferCeStockClose - highStockCeValueCheck * 50;
         let tmpPeValueChange = bufferPeStockClose - highStockPeValueCheck * 50;
         ////check for the stop loss+
-        if (!ceSlTrigger.isTrigger) {
-          let tmpNewCeSlValue = twoDigitDecimal(
-            ((highStockCeValueCheck * stopLoss) / 100) * 50
-          );
-          if (ceSlTrigger.value < -tmpNewCeSlValue) {
-            ceSlTrigger.value = -tmpNewCeSlValue;
-          }
-        }
-        if (!peSlTrigger.isTrigger) {
-          let tmpNewPeSlValue = twoDigitDecimal(
-            ((highStockPeValueCheck * stopLoss) / 100) * 50
-          );
+        // if (!ceSlTrigger.isTrigger) {
+        //   let tmpNewCeSlValue = twoDigitDecimal(
+        //     ((highStockCeValueCheck * stopLoss) / 100) * 50
+        //   );
+        //   if (ceSlTrigger.value < -tmpNewCeSlValue) {
+        //     ceSlTrigger.value = -tmpNewCeSlValue;
+        //   }
+        // }
+        // if (!peSlTrigger.isTrigger) {
+        //   let tmpNewPeSlValue = twoDigitDecimal(
+        //     ((highStockPeValueCheck * stopLoss) / 100) * 50
+        //   );
 
-          if (peSlTrigger.value < -tmpNewPeSlValue) {
-            peSlTrigger.value = -tmpNewPeSlValue;
-          }
-        }
+        //   if (peSlTrigger.value < -tmpNewPeSlValue) {
+        //     peSlTrigger.value = -tmpNewPeSlValue;
+        //   }
+        // }
 
         let tmpBufferPeStockClose =
           peStockClose - (peStockClose * bufferValue) / 100;
